@@ -23,5 +23,6 @@ export async function stepTest(config: Config): Promise<boolean> {
 
 Report: tests run, passed, failed, new tests added`;
 
-  return runClaude({ prompt, continueConversation: true }, config);
+  const result = await runClaude({ prompt, continueConversation: true }, config);
+  return result.success;
 }

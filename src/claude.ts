@@ -2,22 +2,24 @@ import * as pty from 'node-pty';
 import { logInfo, logSuccess, logError, logDryRun } from './logger.js';
 import type { Config } from './config.js';
 
-// Terminal constants
-const DEFAULT_COLS = 80;
-const DEFAULT_ROWS = 24;
-const CTRL_C = 0x03;
-
 // Exit codes
 const EXIT_SUCCESS = 0;
 const EXIT_INTERRUPTED = 130;
-const SIGINT_CODE = 2;
 
 export interface ClaudeOptions {
   prompt: string;
   continueConversation?: boolean;
 }
 
-export async function runClaude(options: ClaudeOptions, config: Config): Promise<boolean> {
+export interface ClaudeResult {
+  success: boolean;
+  output: string;
+}
+
+export async function runClaude(options: ClaudeOptions, config: Config): Promise<ClaudeResult> {
+  // Build the full prompt with exit instruction (like Python version)
+  const fullPrompt = `${options.prompt}. Once the work is completed, exit.`;
+
   const args: string[] = [];
 
   if (config.dangerouslySkipPermissions) {
@@ -28,23 +30,23 @@ export async function runClaude(options: ClaudeOptions, config: Config): Promise
     args.push('-c');
   }
 
-  args.push('-p', options.prompt);
+  // Pass prompt directly like Python version (not with -p flag)
+  args.push(fullPrompt);
 
   if (config.dryRun) {
     logDryRun(`claude ${args.join(' ')}`);
-    return true;
+    return { success: true, output: '' };
   }
 
   logInfo('Calling Claude...');
 
   return new Promise((resolve) => {
-    const cols = process.stdout.columns || DEFAULT_COLS;
-    const rows = process.stdout.rows || DEFAULT_ROWS;
+    let capturedOutput = '';
+    // Get terminal size
+    const cols = process.stdout.columns || 80;
+    const rows = process.stdout.rows || 24;
 
-    // Track if interrupted
-    let interrupted = false;
-
-    // Spawn Claude in a PTY
+    // Spawn Claude in a PTY (like Python's pty.spawn)
     const ptyProcess = pty.spawn('claude', args, {
       name: 'xterm-256color',
       cols,
@@ -53,70 +55,57 @@ export async function runClaude(options: ClaudeOptions, config: Config): Promise
       env: process.env as { [key: string]: string },
     });
 
-    // Pipe PTY output to stdout
+    // Pipe PTY output directly to stdout and capture it
     ptyProcess.onData((data) => {
       process.stdout.write(data);
+      capturedOutput += data;
     });
 
-    // Pipe stdin to PTY
+    // Setup raw mode for stdin to pass input to PTY
     if (process.stdin.isTTY) {
       process.stdin.setRawMode(true);
     }
     process.stdin.resume();
 
-    const stdinHandler = (data: Buffer) => {
-      if (data.length === 1 && data[0] === CTRL_C) {
-        interrupted = true;
-      }
+    // Pipe stdin to PTY
+    const stdinListener = (data: Buffer) => {
       ptyProcess.write(data.toString());
     };
-    process.stdin.on('data', stdinHandler);
+    process.stdin.on('data', stdinListener);
 
-    const resizeHandler = () => {
+    // Handle terminal resize
+    const resizeListener = () => {
       ptyProcess.resize(
-        process.stdout.columns || DEFAULT_COLS,
-        process.stdout.rows || DEFAULT_ROWS
+        process.stdout.columns || 80,
+        process.stdout.rows || 24
       );
     };
-    process.stdout.on('resize', resizeHandler);
+    process.stdout.on('resize', resizeListener);
 
     // Cleanup function
     const cleanup = () => {
-      process.stdin.off('data', stdinHandler);
-      process.stdout.off('resize', resizeHandler);
-      process.off('SIGINT', sigintHandler);
+      process.stdin.removeListener('data', stdinListener);
+      process.stdout.removeListener('resize', resizeListener);
       if (process.stdin.isTTY) {
         process.stdin.setRawMode(false);
       }
       process.stdin.pause();
     };
 
-    ptyProcess.onExit(({ exitCode, signal }) => {
+    // Handle PTY exit
+    ptyProcess.onExit(({ exitCode }) => {
       cleanup();
 
-      const wasInterrupted = interrupted || signal === SIGINT_CODE ||
-        exitCode === EXIT_INTERRUPTED || exitCode === SIGINT_CODE;
-
-      if (wasInterrupted) {
+      if (exitCode === EXIT_INTERRUPTED || exitCode === 2) {
         logError('Claude interrupted');
         process.exit(EXIT_INTERRUPTED);
-      }
-
-      if (exitCode === EXIT_SUCCESS) {
+      } else if (exitCode === EXIT_SUCCESS) {
         logSuccess('Claude completed');
-        resolve(true);
-        return;
+        resolve({ success: true, output: capturedOutput });
+      } else {
+        logError(`Claude exited with code ${exitCode}`);
+        resolve({ success: false, output: capturedOutput });
       }
-
-      logError(`Claude exited with code ${exitCode}`);
-      resolve(false);
     });
-
-    // Handle SIGINT from parent
-    const sigintHandler = () => {
-      interrupted = true;
-      ptyProcess.kill('SIGINT');
-    };
-    process.on('SIGINT', sigintHandler);
   });
 }

@@ -14,5 +14,6 @@ export async function stepImplement(config: Config): Promise<boolean> {
 - Add necessary comments for complex logic
 - Keep changes focused and minimal`;
 
-  return runClaude({ prompt }, config);
+  const result = await runClaude({ prompt }, config);
+  return result.success;
 }

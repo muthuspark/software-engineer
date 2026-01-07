@@ -36,5 +36,6 @@ Do not add any attribution or co author by.
 
 ${pushInstruction}`;
 
-  return runClaude({ prompt, continueConversation: true }, config);
+  const result = await runClaude({ prompt, continueConversation: true }, config);
+  return result.success;
 }

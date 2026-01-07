@@ -52,5 +52,6 @@ export async function stepSolidCleanCode(config: Config): Promise<boolean> {
 2. REFACTOR to fix each issue
 3. EXPLAIN your changes`;
 
-  return runClaude({ prompt, continueConversation: true }, config);
+  const result = await runClaude({ prompt, continueConversation: true }, config);
+  return result.success;
 }

@@ -48,10 +48,16 @@ export async function runPipeline(config: Config): Promise<void> {
 
   // Step 2: Review loop
   for (let i = 1; i <= config.reviewIterations; i++) {
-    const reviewSuccess = await stepReview(i, config);
-    if (!reviewSuccess) {
+    const reviewResult = await stepReview(i, config);
+    if (!reviewResult.success) {
       console.log(chalk.red('\nReview step failed. Exiting.'));
       process.exit(1);
+    }
+
+    // Skip remaining reviews if no issues were found
+    if (reviewResult.noIssuesFound) {
+      console.log(chalk.green('\n✓ Code review passed - no issues found, skipping remaining reviews'));
+      break;
     }
 
     const result = await confirm(config);

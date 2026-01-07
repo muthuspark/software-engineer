@@ -25,5 +25,6 @@ export async function stepChangelog(config: Config): Promise<boolean> {
 2. Be concise but descriptive
 3. Commit the CHANGELOG update`;
 
-  return runClaude({ prompt, continueConversation: true }, config);
+  const result = await runClaude({ prompt, continueConversation: true }, config);
+  return result.success;
 }
