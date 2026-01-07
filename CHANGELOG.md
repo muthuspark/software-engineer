@@ -7,6 +7,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.1.8] - 2026-01-07
+
+### Changed
+- Simplified Claude subprocess handling by removing redundant SIGINT handler
+- Prompt now passed directly as argument (matching Python implementation)
+- Auto-append exit instruction to prompts for consistent behavior
+
+### Removed
+- Removed unused terminal constants (inlined default values)
+- Removed redundant SIGINT_CODE constant
+
+## [0.1.7] - 2026-01-07
+
+### Changed
+- Added test file to .gitignore
+
 ## [0.1.6] - 2026-01-07
 
 ### Fixed
