@@ -2,3 +2,4 @@ software_factory.sh
 node_modules/
 dist/
 *.log
+test_claude.py

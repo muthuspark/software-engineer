@@ -1,6 +1,6 @@
 {
   "name": "software-engineer",
-  "version": "0.1.6",
+  "version": "0.1.8",
   "description": "Software Factory Pipeline - Automate development workflow with Claude AI",
   "type": "module",
   "main": "dist/index.js",
