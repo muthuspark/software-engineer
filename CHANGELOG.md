@@ -16,5 +16,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Control flow safety improved in CLI entry point
 
 ### Changed
-- Extract magic numbers to named constants (BOX_WIDTH, DEFAULT_REVIEW_ITERATIONS)
-- Remove shell:true from spawn for improved security
+- Use node-pty for proper terminal emulation with Claude subprocess
+- Extract magic numbers to named constants (terminal size, exit codes)
+- CLI version now read dynamically from package.json
