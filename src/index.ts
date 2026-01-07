@@ -38,7 +38,7 @@ program
     if (!config.requirement) {
       console.error(chalk.red('Error:') + ' No requirement provided');
       program.help();
-      process.exit(1);
+      return; // Ensure we don't continue if help() doesn't exit
     }
 
     try {

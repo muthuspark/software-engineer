@@ -33,7 +33,6 @@ export async function runClaude(options: ClaudeOptions, config: Config): Promise
   return new Promise((resolve) => {
     const proc = spawn('claude', args, {
       stdio: ['inherit', 'pipe', 'pipe'],
-      shell: true,
     });
 
     proc.stdout?.on('data', (data: Buffer) => {

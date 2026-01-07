@@ -31,6 +31,9 @@ export async function stepCommit(config: Config): Promise<boolean> {
 ## Tasks:
 1. Stage relevant files (git add)
 2. Commit with excellent message
+
+Do not add any attribution or co author by.
+
 ${pushInstruction}`;
 
   return runClaude({ prompt, continueConversation: true }, config);

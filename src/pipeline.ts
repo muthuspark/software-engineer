@@ -11,22 +11,28 @@ import {
 } from './steps/index.js';
 import type { Config } from './config.js';
 
+let signalHandlersRegistered = false;
+
 export async function runPipeline(config: Config): Promise<void> {
   // Setup logging
   if (config.logFile) {
     setLogFile(config.logFile);
   }
 
-  // Setup interrupt handler
-  process.on('SIGINT', () => {
-    console.log(chalk.red('\n\nPipeline interrupted'));
-    process.exit(130);
-  });
+  // Setup interrupt handler (only once to prevent duplicate registrations)
+  if (!signalHandlersRegistered) {
+    process.on('SIGINT', () => {
+      console.log(chalk.red('\n\nPipeline interrupted'));
+      process.exit(130);
+    });
 
-  process.on('SIGTERM', () => {
-    console.log(chalk.red('\n\nPipeline terminated'));
-    process.exit(130);
-  });
+    process.on('SIGTERM', () => {
+      console.log(chalk.red('\n\nPipeline terminated'));
+      process.exit(130);
+    });
+
+    signalHandlersRegistered = true;
+  }
 
   // Display header
   logHeader(config);

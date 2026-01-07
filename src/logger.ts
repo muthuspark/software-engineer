@@ -1,6 +1,8 @@
 import chalk from 'chalk';
 import { appendFileSync } from 'fs';
 
+const BOX_WIDTH = 62;
+
 let logFilePath: string | undefined;
 
 export function setLogFile(path: string | undefined): void {
@@ -34,7 +36,7 @@ export function logRaw(message: string): void {
 }
 
 export function logStep(stepNum: string, title: string): void {
-  const line = '─'.repeat(62);
+  const line = '─'.repeat(BOX_WIDTH);
   console.log();
   console.log(chalk.cyan(`┌${line}┐`));
   console.log(chalk.cyan('│') + ' ' + chalk.green(`STEP ${stepNum}:`) + ' ' + title);
@@ -47,14 +49,16 @@ export function logStep(stepNum: string, title: string): void {
 }
 
 export function logHeader(config: { reviewIterations: number; autoMode: boolean; dryRun: boolean; dangerouslySkipPermissions: boolean }): void {
-  const line = '═'.repeat(62);
+  const line = '═'.repeat(BOX_WIDTH);
   console.log();
   console.log(chalk.green(`╔${line}╗`));
   console.log(chalk.green('║') + '           SOFTWARE FACTORY PIPELINE v2.0                     ' + chalk.green('║'));
   console.log(chalk.green(`╠${line}╣`));
-  console.log(chalk.green('║') + ` Reviews: ${config.reviewIterations} | Auto: ${config.autoMode} | Dry-run: ${config.dryRun}`);
+  const configLine = ` Reviews: ${config.reviewIterations} | Auto: ${config.autoMode} | Dry-run: ${config.dryRun}`;
+  console.log(chalk.green('║') + configLine.padEnd(BOX_WIDTH) + chalk.green('║'));
   if (config.dangerouslySkipPermissions) {
-    console.log(chalk.green('║') + ' ' + chalk.yellow('⚠ Skip permissions: enabled'));
+    const permLine = ' ' + chalk.yellow('⚠ Skip permissions: enabled');
+    console.log(chalk.green('║') + permLine + ' '.repeat(BOX_WIDTH - stripAnsi(permLine).length) + chalk.green('║'));
   }
   console.log(chalk.green(`╚${line}╝`));
   console.log();
@@ -77,5 +81,10 @@ export function logInfo(message: string): void {
 }
 
 export function logDryRun(command: string): void {
+  const message = '[DRY-RUN] ' + command;
   console.log(chalk.yellow('[DRY-RUN]') + ' ' + command);
+
+  if (logFilePath) {
+    appendFileSync(logFilePath, message + '\n');
+  }
 }
