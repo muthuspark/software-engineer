@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.1.6] - 2026-01-07
+
 ### Fixed
 - Header box rendering now displays closing borders correctly
 - Dry-run commands are now properly logged to file

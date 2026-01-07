@@ -2,15 +2,22 @@
 
 import { Command } from 'commander';
 import chalk from 'chalk';
+import { readFileSync } from 'fs';
+import { fileURLToPath } from 'url';
+import { dirname, join } from 'path';
 import { loadConfigFromEnv, mergeConfig } from './config.js';
 import { runPipeline } from './pipeline.js';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+const pkg = JSON.parse(readFileSync(join(__dirname, '..', 'package.json'), 'utf-8'));
 
 const program = new Command();
 
 program
   .name('sf')
   .description('Software Factory Pipeline - Automate development workflow with Claude AI')
-  .version('1.0.0')
+  .version(pkg.version)
   .argument('<requirement>', 'The requirement or task to implement')
   .option('-a, --auto', 'Non-interactive mode (no confirmations)')
   .option('-d, --dry-run', 'Print commands without executing')
