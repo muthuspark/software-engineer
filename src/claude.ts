@@ -1,4 +1,4 @@
-import * as pty from 'node-pty';
+import { spawn } from 'child_process';
 import { logInfo, logSuccess, logError, logDryRun } from './logger.js';
 import type { Config } from './config.js';
 
@@ -42,60 +42,34 @@ export async function runClaude(options: ClaudeOptions, config: Config): Promise
 
   return new Promise((resolve) => {
     let capturedOutput = '';
-    // Get terminal size
-    const cols = process.stdout.columns || 80;
-    const rows = process.stdout.rows || 24;
 
-    // Spawn Claude in a PTY (like Python's pty.spawn)
-    const ptyProcess = pty.spawn('claude', args, {
-      name: 'xterm-256color',
-      cols,
-      rows,
+    // Spawn Claude using child_process
+    // Use 'inherit' for stdin to allow interactive input
+    // Use 'pipe' for stdout/stderr to capture output while passing through
+    const child = spawn('claude', args, {
       cwd: process.cwd(),
-      env: process.env as { [key: string]: string },
+      env: process.env,
+      stdio: ['inherit', 'pipe', 'pipe'],
     });
 
-    // Pipe PTY output directly to stdout and capture it
-    ptyProcess.onData((data) => {
-      process.stdout.write(data);
-      capturedOutput += data;
-    });
-
-    // Setup raw mode for stdin to pass input to PTY
-    if (process.stdin.isTTY) {
-      process.stdin.setRawMode(true);
+    // Capture and pass through stdout
+    if (child.stdout) {
+      child.stdout.on('data', (data: Buffer) => {
+        const text = data.toString();
+        process.stdout.write(text);
+        capturedOutput += text;
+      });
     }
-    process.stdin.resume();
 
-    // Pipe stdin to PTY
-    const stdinListener = (data: Buffer) => {
-      ptyProcess.write(data.toString());
-    };
-    process.stdin.on('data', stdinListener);
+    // Capture and pass through stderr
+    if (child.stderr) {
+      child.stderr.on('data', (data: Buffer) => {
+        process.stderr.write(data.toString());
+      });
+    }
 
-    // Handle terminal resize
-    const resizeListener = () => {
-      ptyProcess.resize(
-        process.stdout.columns || 80,
-        process.stdout.rows || 24
-      );
-    };
-    process.stdout.on('resize', resizeListener);
-
-    // Cleanup function
-    const cleanup = () => {
-      process.stdin.removeListener('data', stdinListener);
-      process.stdout.removeListener('resize', resizeListener);
-      if (process.stdin.isTTY) {
-        process.stdin.setRawMode(false);
-      }
-      process.stdin.pause();
-    };
-
-    // Handle PTY exit
-    ptyProcess.onExit(({ exitCode }) => {
-      cleanup();
-
+    // Handle process exit
+    child.on('close', (exitCode) => {
       if (exitCode === EXIT_INTERRUPTED || exitCode === 2) {
         logError('Claude interrupted');
         process.exit(EXIT_INTERRUPTED);
@@ -106,6 +80,12 @@ export async function runClaude(options: ClaudeOptions, config: Config): Promise
         logError(`Claude exited with code ${exitCode}`);
         resolve({ success: false, output: capturedOutput });
       }
+    });
+
+    // Handle spawn errors
+    child.on('error', (err) => {
+      logError(`Failed to start Claude: ${err.message}`);
+      resolve({ success: false, output: '' });
     });
   });
 }
