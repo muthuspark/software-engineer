@@ -54,6 +54,25 @@ async function performAdaptiveAnalysis(config: Config): Promise<AdaptiveAnalysis
   return analysis;
 }
 
+function branchMatchesRequirement(currentBranch: string, analysis: BranchAnalysis): boolean {
+  const currentLower = currentBranch.toLowerCase();
+  const suggestedLower = analysis.shortDescription.toLowerCase();
+
+  // Extract keywords from both branches
+  const currentKeywords = currentLower.split(/[-_/]/).filter((k) => k.length > 2);
+  const suggestedKeywords = suggestedLower.split(/[-_/]/).filter((k) => k.length > 2);
+
+  // Check if any significant keywords overlap
+  const overlap = currentKeywords.some((ck) =>
+    suggestedKeywords.some((sk) => ck.includes(sk) || sk.includes(ck))
+  );
+
+  // Also check if the branch prefix matches the change type
+  const prefixMatches = currentLower.startsWith(analysis.branchPrefix);
+
+  return overlap || (prefixMatches && suggestedKeywords.length === 0);
+}
+
 export async function stepBranchManagement(config: Config): Promise<BranchResult> {
   logStep('1/8', 'SMART BRANCH MANAGEMENT');
 
@@ -67,19 +86,30 @@ export async function stepBranchManagement(config: Config): Promise<BranchResult
   const gitState = getGitState();
   logInfo(`Current branch: ${gitState.currentBranch}`);
 
-  if (!gitState.isMainBranch) {
-    logInfo(`Already on branch '${gitState.currentBranch}' - skipping branch creation`);
-    return createResult(gitState.currentBranch, null, false, adaptiveAnalysis);
-  }
-
-  logInfo('On main branch - analyzing requirement...');
-
-  // Analyze requirement to determine change type
+  // Always analyze the requirement first
+  logInfo('Analyzing requirement...');
   const analysis = await analyzeRequirement(config.requirement, config);
 
   logInfo(`Change type: ${analysis.changeType}`);
   logInfo(`Suggested branch: ${analysis.suggestedBranchName}`);
 
+  if (!gitState.isMainBranch) {
+    // Check if current branch matches the requirement
+    if (branchMatchesRequirement(gitState.currentBranch, analysis)) {
+      logInfo(`Current branch '${gitState.currentBranch}' matches requirement - continuing`);
+      return createResult(gitState.currentBranch, analysis, false, adaptiveAnalysis);
+    }
+
+    // Branch doesn't match - warn and suggest switching
+    logWarning(`Current branch '${gitState.currentBranch}' may not match this requirement`);
+    logWarning(`Suggested branch for this requirement: ${analysis.suggestedBranchName}`);
+    logWarning('Consider switching to main and re-running, or use --skip-branch-management to continue');
+
+    // Continue on current branch but flag the mismatch
+    return createResult(gitState.currentBranch, analysis, false, adaptiveAnalysis);
+  }
+
+  // On main branch
   if (analysis.isTrivial) {
     logInfo('Trivial change detected - staying on current branch');
     return createResult(gitState.currentBranch, analysis, false, adaptiveAnalysis);
