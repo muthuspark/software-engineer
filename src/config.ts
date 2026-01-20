@@ -2,7 +2,6 @@ const DEFAULT_REVIEW_ITERATIONS = 2;
 
 export interface Config {
   reviewIterations: number;
-  autoMode: boolean;
   dryRun: boolean;
   logFile?: string;
   skipTests: boolean;
@@ -25,7 +24,6 @@ function parseIntEnv(value: string | undefined, defaultValue: number): number {
 export function loadConfigFromEnv(): Partial<Config> {
   return {
     reviewIterations: parseIntEnv(process.env.SF_REVIEW_ITERATIONS, DEFAULT_REVIEW_ITERATIONS),
-    autoMode: parseBoolEnv(process.env.SF_AUTO_MODE, false),
     dryRun: parseBoolEnv(process.env.SF_DRY_RUN, false),
     logFile: process.env.SF_LOG_FILE || undefined,
     skipTests: parseBoolEnv(process.env.SF_SKIP_TESTS, false),
@@ -37,7 +35,6 @@ export function loadConfigFromEnv(): Partial<Config> {
 export function mergeConfig(envConfig: Partial<Config>, cliConfig: Partial<Config>): Config {
   return {
     reviewIterations: cliConfig.reviewIterations ?? envConfig.reviewIterations ?? DEFAULT_REVIEW_ITERATIONS,
-    autoMode: cliConfig.autoMode ?? envConfig.autoMode ?? false,
     dryRun: cliConfig.dryRun ?? envConfig.dryRun ?? false,
     logFile: cliConfig.logFile ?? envConfig.logFile,
     skipTests: cliConfig.skipTests ?? envConfig.skipTests ?? false,

@@ -48,13 +48,13 @@ export function logStep(stepNum: string, title: string): void {
   }
 }
 
-export function logHeader(config: { reviewIterations: number; autoMode: boolean; dryRun: boolean; dangerouslySkipPermissions: boolean }): void {
+export function logHeader(config: { reviewIterations: number; dryRun: boolean; dangerouslySkipPermissions: boolean }): void {
   const line = '═'.repeat(BOX_WIDTH);
   console.log();
   console.log(chalk.green(`╔${line}╗`));
   console.log(chalk.green('║') + '           SOFTWARE FACTORY PIPELINE v2.0                     ' + chalk.green('║'));
   console.log(chalk.green(`╠${line}╣`));
-  const configLine = ` Reviews: ${config.reviewIterations} | Auto: ${config.autoMode} | Dry-run: ${config.dryRun}`;
+  const configLine = ` Reviews: ${config.reviewIterations} | Dry-run: ${config.dryRun}`;
   console.log(chalk.green('║') + configLine.padEnd(BOX_WIDTH) + chalk.green('║'));
   if (config.dangerouslySkipPermissions) {
     const permLine = ' ' + chalk.yellow('⚠ Skip permissions: enabled');

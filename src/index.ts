@@ -19,7 +19,6 @@ program
   .description('Software Factory Pipeline - Automate development workflow with Claude AI')
   .version(pkg.version)
   .argument('<requirement>', 'The requirement or task to implement')
-  .option('-a, --auto', 'Non-interactive mode (no confirmations)')
   .option('-d, --dry-run', 'Print commands without executing')
   .option('-r, --reviews <n>', 'Number of review iterations', '2')
   .option('--skip-tests', 'Skip the testing step')
@@ -31,7 +30,6 @@ program
 
     const cliConfig = {
       requirement,
-      autoMode: options.auto ?? undefined,
       dryRun: options.dryRun ?? undefined,
       reviewIterations: options.reviews ? parseInt(options.reviews, 10) : undefined,
       skipTests: options.skipTests ?? undefined,

@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.1.10] - 2026-01-20
+
+### Changed
+- Pipeline now runs in non-interactive mode by default (removed `--auto` flag)
+- Removed confirmation prompts between steps for streamlined execution
+
+### Removed
+- `--auto` / `-a` CLI option (no longer needed)
+- `SF_AUTO_MODE` environment variable
+- `inquirer` dependency (no longer needed for prompts)
+
 ## [0.1.9] - 2026-01-20
 
 ### Added

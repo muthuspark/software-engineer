@@ -1,6 +1,5 @@
 import chalk from 'chalk';
 import { log, logHeader, setLogFile } from './logger.js';
-import { confirm, ConfirmResult, handleConfirm } from './prompts.js';
 import {
   stepImplement,
   stepSimplify,
@@ -45,7 +44,6 @@ export async function runPipeline(config: Config): Promise<void> {
     console.log(chalk.red('\nImplementation step failed. Exiting.'));
     process.exit(1);
   }
-  await handleConfirm(config);
 
   // Step 2: Simplify
   const simplifySuccess = await stepSimplify(config);
@@ -53,7 +51,6 @@ export async function runPipeline(config: Config): Promise<void> {
     console.log(chalk.red('\nSimplification step failed. Exiting.'));
     process.exit(1);
   }
-  await handleConfirm(config);
 
   // Step 3: Review loop
   for (let i = 1; i <= config.reviewIterations; i++) {
@@ -68,15 +65,6 @@ export async function runPipeline(config: Config): Promise<void> {
       console.log(chalk.green('\n✓ Code review passed - no issues found, skipping remaining reviews'));
       break;
     }
-
-    const result = await confirm(config);
-    if (result === ConfirmResult.Quit) {
-      console.log('\nPipeline cancelled by user.');
-      process.exit(0);
-    }
-    if (result === ConfirmResult.Skip) {
-      break; // Skip remaining reviews
-    }
   }
 
   // Step 4: SOLID & Clean Code
@@ -85,7 +73,6 @@ export async function runPipeline(config: Config): Promise<void> {
     console.log(chalk.red('\nSOLID review step failed. Exiting.'));
     process.exit(1);
   }
-  await handleConfirm(config);
 
   // Step 5: Test
   const testSuccess = await stepTest(config);
@@ -93,7 +80,6 @@ export async function runPipeline(config: Config): Promise<void> {
     console.log(chalk.red('\nTest step failed. Exiting.'));
     process.exit(1);
   }
-  await handleConfirm(config);
 
   // Step 6: Commit
   const commitSuccess = await stepCommit(config);
@@ -101,7 +87,6 @@ export async function runPipeline(config: Config): Promise<void> {
     console.log(chalk.red('\nCommit step failed. Exiting.'));
     process.exit(1);
   }
-  await handleConfirm(config);
 
   // Step 7: Changelog
   const changelogSuccess = await stepChangelog(config);
