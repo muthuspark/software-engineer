@@ -22,6 +22,7 @@ program
   .argument('<requirement>', 'The requirement or task to implement')
   .option('-d, --dry-run', 'Print commands without executing')
   .option('-r, --reviews <n>', 'Number of review iterations', '2')
+  .option('-a, --adaptive', 'Enable adaptive step execution (AI decides which steps to skip)')
   .option('--skip-tests', 'Skip the testing step')
   .option('--skip-push', 'Commit but do not push')
   .option('--skip-branch-management', 'Skip smart branch management')
@@ -42,6 +43,7 @@ program
       skipBranchManagement: options.skipBranchManagement ?? undefined,
       logFile: options.log ?? undefined,
       dangerouslySkipPermissions: options.dangerouslySkipPermissions ?? undefined,
+      adaptiveExecution: options.adaptive ?? undefined,
     };
 
     const config = mergeConfig(envConfig, cliConfig);

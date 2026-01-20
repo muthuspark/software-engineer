@@ -1,5 +1,5 @@
 import chalk from 'chalk';
-import { log, logHeader, setLogFile } from './logger.js';
+import { log, logHeader, setLogFile, logInfo } from './logger.js';
 import {
   stepBranchManagement,
   stepImplement,
@@ -11,6 +11,7 @@ import {
   stepChangelog,
 } from './steps/index.js';
 import type { Config } from './config.js';
+import type { AdaptiveAnalysis } from './utils/stepAnalyzer.js';
 
 let signalHandlersRegistered = false;
 
@@ -39,12 +40,16 @@ export async function runPipeline(config: Config): Promise<void> {
   logHeader(config);
   log(`Starting pipeline for: ${config.requirement}`);
 
-  // Step 1: Smart Branch Management
+  // Step 1: Smart Branch Management (also performs adaptive analysis if enabled)
   const branchResult = await stepBranchManagement(config);
   if (!branchResult.success) {
     console.log(chalk.red('\nBranch management step failed. Exiting.'));
     process.exit(1);
   }
+
+  // Extract adaptive analysis for step decisions
+  const adaptive: AdaptiveAnalysis | null = branchResult.adaptiveAnalysis;
+  const rec = adaptive?.stepRecommendation;
 
   // Step 2: Implement
   const implSuccess = await stepImplement(config);
@@ -53,40 +58,58 @@ export async function runPipeline(config: Config): Promise<void> {
     process.exit(1);
   }
 
-  // Step 3: Simplify
-  const simplifySuccess = await stepSimplify(config);
-  if (!simplifySuccess) {
-    console.log(chalk.red('\nSimplification step failed. Exiting.'));
-    process.exit(1);
-  }
-
-  // Step 4: Review loop
-  for (let i = 1; i <= config.reviewIterations; i++) {
-    const reviewResult = await stepReview(i, config);
-    if (!reviewResult.success) {
-      console.log(chalk.red('\nReview step failed. Exiting.'));
+  // Step 3: Simplify (can be skipped by adaptive execution)
+  if (rec?.skipSimplify) {
+    logInfo('Simplify step skipped (adaptive execution)');
+  } else {
+    const simplifySuccess = await stepSimplify(config);
+    if (!simplifySuccess) {
+      console.log(chalk.red('\nSimplification step failed. Exiting.'));
       process.exit(1);
     }
+  }
 
-    // Skip remaining reviews if no issues were found
-    if (reviewResult.noIssuesFound) {
-      console.log(chalk.green('\n✓ Code review passed - no issues found, skipping remaining reviews'));
-      break;
+  // Step 4: Review loop (can be skipped or adjusted by adaptive execution)
+  if (rec?.skipReview) {
+    logInfo('Review step skipped (adaptive execution)');
+  } else {
+    const reviewIterations = rec?.reviewIterations ?? config.reviewIterations;
+    for (let i = 1; i <= reviewIterations; i++) {
+      const reviewResult = await stepReview(i, config, rec?.reviewDepth);
+      if (!reviewResult.success) {
+        console.log(chalk.red('\nReview step failed. Exiting.'));
+        process.exit(1);
+      }
+
+      // Skip remaining reviews if no issues were found
+      if (reviewResult.noIssuesFound) {
+        console.log(chalk.green('\n✓ Code review passed - no issues found, skipping remaining reviews'));
+        break;
+      }
     }
   }
 
-  // Step 5: SOLID & Clean Code
-  const solidSuccess = await stepSolidCleanCode(config);
-  if (!solidSuccess) {
-    console.log(chalk.red('\nSOLID review step failed. Exiting.'));
-    process.exit(1);
+  // Step 5: SOLID & Clean Code (can be skipped by adaptive execution)
+  if (rec?.skipSolid) {
+    logInfo('SOLID review step skipped (adaptive execution)');
+  } else {
+    const solidSuccess = await stepSolidCleanCode(config);
+    if (!solidSuccess) {
+      console.log(chalk.red('\nSOLID review step failed. Exiting.'));
+      process.exit(1);
+    }
   }
 
-  // Step 6: Test
-  const testSuccess = await stepTest(config);
-  if (!testSuccess) {
-    console.log(chalk.red('\nTest step failed. Exiting.'));
-    process.exit(1);
+  // Step 6: Test (can be skipped by adaptive execution or CLI flag)
+  const skipTestsReason = rec?.skipTests ? 'adaptive execution' : config.skipTests ? '--skip-tests' : null;
+  if (skipTestsReason) {
+    logInfo(`Test step skipped (${skipTestsReason})`);
+  } else {
+    const testSuccess = await stepTest(config);
+    if (!testSuccess) {
+      console.log(chalk.red('\nTest step failed. Exiting.'));
+      process.exit(1);
+    }
   }
 
   // Step 7: Commit
@@ -96,11 +119,15 @@ export async function runPipeline(config: Config): Promise<void> {
     process.exit(1);
   }
 
-  // Step 8: Changelog
-  const changelogSuccess = await stepChangelog(config);
-  if (!changelogSuccess) {
-    console.log(chalk.red('\nChangelog step failed. Exiting.'));
-    process.exit(1);
+  // Step 8: Changelog (can be skipped by adaptive execution)
+  if (rec?.skipChangelog) {
+    logInfo('Changelog step skipped (adaptive execution)');
+  } else {
+    const changelogSuccess = await stepChangelog(config);
+    if (!changelogSuccess) {
+      console.log(chalk.red('\nChangelog step failed. Exiting.'));
+      process.exit(1);
+    }
   }
 
   console.log(chalk.green('\n✓ Pipeline completed successfully\n'));
