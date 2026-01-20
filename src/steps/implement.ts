@@ -3,7 +3,7 @@ import { runClaude } from '../claude.js';
 import type { Config } from '../config.js';
 
 export async function stepImplement(config: Config): Promise<boolean> {
-  logStep('1/7', 'IMPLEMENT REQUIREMENT');
+  logStep('2/8', 'IMPLEMENT REQUIREMENT');
 
   const prompt = `${config.requirement}
 
