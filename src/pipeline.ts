@@ -1,6 +1,7 @@
 import chalk from 'chalk';
 import { log, logHeader, setLogFile } from './logger.js';
 import {
+  stepBranchManagement,
   stepImplement,
   stepSimplify,
   stepReview,
@@ -38,21 +39,28 @@ export async function runPipeline(config: Config): Promise<void> {
   logHeader(config);
   log(`Starting pipeline for: ${config.requirement}`);
 
-  // Step 1: Implement
+  // Step 1: Smart Branch Management
+  const branchResult = await stepBranchManagement(config);
+  if (!branchResult.success) {
+    console.log(chalk.red('\nBranch management step failed. Exiting.'));
+    process.exit(1);
+  }
+
+  // Step 2: Implement
   const implSuccess = await stepImplement(config);
   if (!implSuccess) {
     console.log(chalk.red('\nImplementation step failed. Exiting.'));
     process.exit(1);
   }
 
-  // Step 2: Simplify
+  // Step 3: Simplify
   const simplifySuccess = await stepSimplify(config);
   if (!simplifySuccess) {
     console.log(chalk.red('\nSimplification step failed. Exiting.'));
     process.exit(1);
   }
 
-  // Step 3: Review loop
+  // Step 4: Review loop
   for (let i = 1; i <= config.reviewIterations; i++) {
     const reviewResult = await stepReview(i, config);
     if (!reviewResult.success) {
@@ -67,28 +75,28 @@ export async function runPipeline(config: Config): Promise<void> {
     }
   }
 
-  // Step 4: SOLID & Clean Code
+  // Step 5: SOLID & Clean Code
   const solidSuccess = await stepSolidCleanCode(config);
   if (!solidSuccess) {
     console.log(chalk.red('\nSOLID review step failed. Exiting.'));
     process.exit(1);
   }
 
-  // Step 5: Test
+  // Step 6: Test
   const testSuccess = await stepTest(config);
   if (!testSuccess) {
     console.log(chalk.red('\nTest step failed. Exiting.'));
     process.exit(1);
   }
 
-  // Step 6: Commit
+  // Step 7: Commit
   const commitSuccess = await stepCommit(config);
   if (!commitSuccess) {
     console.log(chalk.red('\nCommit step failed. Exiting.'));
     process.exit(1);
   }
 
-  // Step 7: Changelog
+  // Step 8: Changelog
   const changelogSuccess = await stepChangelog(config);
   if (!changelogSuccess) {
     console.log(chalk.red('\nChangelog step failed. Exiting.'));

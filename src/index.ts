@@ -23,6 +23,7 @@ program
   .option('-r, --reviews <n>', 'Number of review iterations', '2')
   .option('--skip-tests', 'Skip the testing step')
   .option('--skip-push', 'Commit but do not push')
+  .option('--skip-branch-management', 'Skip smart branch management')
   .option('--log <file>', 'Log output to file')
   .option('--dangerously-skip-permissions', 'Pass flag to claude to skip permission prompts')
   .action(async (requirement: string, options) => {
@@ -34,6 +35,7 @@ program
       reviewIterations: options.reviews ? parseInt(options.reviews, 10) : undefined,
       skipTests: options.skipTests ?? undefined,
       skipPush: options.skipPush ?? undefined,
+      skipBranchManagement: options.skipBranchManagement ?? undefined,
       logFile: options.log ?? undefined,
       dangerouslySkipPermissions: options.dangerouslySkipPermissions ?? undefined,
     };

@@ -6,6 +6,7 @@ export interface Config {
   logFile?: string;
   skipTests: boolean;
   skipPush: boolean;
+  skipBranchManagement: boolean;
   dangerouslySkipPermissions: boolean;
   requirement: string;
 }
@@ -28,6 +29,7 @@ export function loadConfigFromEnv(): Partial<Config> {
     logFile: process.env.SF_LOG_FILE || undefined,
     skipTests: parseBoolEnv(process.env.SF_SKIP_TESTS, false),
     skipPush: parseBoolEnv(process.env.SF_SKIP_PUSH, false),
+    skipBranchManagement: parseBoolEnv(process.env.SF_SKIP_BRANCH_MANAGEMENT, false),
     dangerouslySkipPermissions: parseBoolEnv(process.env.SF_DANGEROUSLY_SKIP_PERMISSIONS, false),
   };
 }
@@ -39,6 +41,7 @@ export function mergeConfig(envConfig: Partial<Config>, cliConfig: Partial<Confi
     logFile: cliConfig.logFile ?? envConfig.logFile,
     skipTests: cliConfig.skipTests ?? envConfig.skipTests ?? false,
     skipPush: cliConfig.skipPush ?? envConfig.skipPush ?? false,
+    skipBranchManagement: cliConfig.skipBranchManagement ?? envConfig.skipBranchManagement ?? false,
     dangerouslySkipPermissions: cliConfig.dangerouslySkipPermissions ?? envConfig.dangerouslySkipPermissions ?? false,
     requirement: cliConfig.requirement ?? '',
   };
