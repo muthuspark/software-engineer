@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- Smart Branch Management step (Step 1) - automatically creates feature branches when on main/master
+- AI-powered requirement analysis to determine change type (feature/fix/refactor/docs/chore)
+- Branch naming suggestions based on requirement content
+- Detection and warning for potentially conflicting remote branches
+- `--skip-branch-management` CLI flag and `SF_SKIP_BRANCH_MANAGEMENT` env var
+- Command injection protection for branch creation
+
+### Changed
+- Pipeline now has 8 steps: Branch → Implement → Simplify → Review → SOLID → Test → Commit → Changelog
+
 ## [0.1.10] - 2026-01-20
 
 ### Changed
