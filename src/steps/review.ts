@@ -24,7 +24,7 @@ function detectNoIssues(output: string): boolean {
 }
 
 export async function stepReview(iteration: number, config: Config): Promise<ReviewResult> {
-  logStep('2/6', `CODE REVIEW (Round ${iteration}/${config.reviewIterations})`);
+  logStep('3/7', `CODE REVIEW (Round ${iteration}/${config.reviewIterations})`);
 
   const prompt = `Review and improve the changes:
 

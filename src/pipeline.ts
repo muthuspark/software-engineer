@@ -3,6 +3,7 @@ import { log, logHeader, setLogFile } from './logger.js';
 import { confirm, ConfirmResult, handleConfirm } from './prompts.js';
 import {
   stepImplement,
+  stepSimplify,
   stepReview,
   stepSolidCleanCode,
   stepTest,
@@ -46,7 +47,15 @@ export async function runPipeline(config: Config): Promise<void> {
   }
   await handleConfirm(config);
 
-  // Step 2: Review loop
+  // Step 2: Simplify
+  const simplifySuccess = await stepSimplify(config);
+  if (!simplifySuccess) {
+    console.log(chalk.red('\nSimplification step failed. Exiting.'));
+    process.exit(1);
+  }
+  await handleConfirm(config);
+
+  // Step 3: Review loop
   for (let i = 1; i <= config.reviewIterations; i++) {
     const reviewResult = await stepReview(i, config);
     if (!reviewResult.success) {
@@ -70,7 +79,7 @@ export async function runPipeline(config: Config): Promise<void> {
     }
   }
 
-  // Step 3: SOLID & Clean Code
+  // Step 4: SOLID & Clean Code
   const solidSuccess = await stepSolidCleanCode(config);
   if (!solidSuccess) {
     console.log(chalk.red('\nSOLID review step failed. Exiting.'));
@@ -78,7 +87,7 @@ export async function runPipeline(config: Config): Promise<void> {
   }
   await handleConfirm(config);
 
-  // Step 4: Test
+  // Step 5: Test
   const testSuccess = await stepTest(config);
   if (!testSuccess) {
     console.log(chalk.red('\nTest step failed. Exiting.'));
@@ -86,7 +95,7 @@ export async function runPipeline(config: Config): Promise<void> {
   }
   await handleConfirm(config);
 
-  // Step 5: Commit
+  // Step 6: Commit
   const commitSuccess = await stepCommit(config);
   if (!commitSuccess) {
     console.log(chalk.red('\nCommit step failed. Exiting.'));
@@ -94,7 +103,7 @@ export async function runPipeline(config: Config): Promise<void> {
   }
   await handleConfirm(config);
 
-  // Step 6: Changelog
+  // Step 7: Changelog
   const changelogSuccess = await stepChangelog(config);
   if (!changelogSuccess) {
     console.log(chalk.red('\nChangelog step failed. Exiting.'));

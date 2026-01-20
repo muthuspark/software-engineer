@@ -1,4 +1,5 @@
 export { stepImplement } from './implement.js';
+export { stepSimplify } from './simplify.js';
 export { stepReview, type ReviewResult } from './review.js';
 export { stepSolidCleanCode } from './solid.js';
 export { stepTest } from './test.js';
