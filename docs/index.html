@@ -1,0 +1,595 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Software Engineer - AI-Powered Dev Workflow CLI</title>
+  <meta name="description" content="CLI that automates the full dev workflow with Claude AI - implement, review, test, and commit code with a single command">
+  <style>
+    :root {
+      --primary: #6366f1;
+      --primary-dark: #4f46e5;
+      --bg: #0f0f0f;
+      --bg-light: #1a1a1a;
+      --bg-card: #242424;
+      --text: #e5e5e5;
+      --text-muted: #a3a3a3;
+      --border: #333;
+      --success: #22c55e;
+      --code-bg: #2d2d2d;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+    }
+
+    .container {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 0 24px;
+    }
+
+    /* Header */
+    header {
+      padding: 20px 0;
+      border-bottom: 1px solid var(--border);
+      position: sticky;
+      top: 0;
+      background: var(--bg);
+      z-index: 100;
+    }
+
+    header .container {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .logo {
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: var(--text);
+      text-decoration: none;
+    }
+
+    .logo span {
+      color: var(--primary);
+    }
+
+    nav a {
+      color: var(--text-muted);
+      text-decoration: none;
+      margin-left: 32px;
+      font-size: 0.95rem;
+      transition: color 0.2s;
+    }
+
+    nav a:hover {
+      color: var(--text);
+    }
+
+    /* Hero */
+    .hero {
+      padding: 100px 0 80px;
+      text-align: center;
+    }
+
+    .hero h1 {
+      font-size: 3.5rem;
+      font-weight: 800;
+      margin-bottom: 24px;
+      background: linear-gradient(135deg, var(--text) 0%, var(--primary) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .hero p {
+      font-size: 1.25rem;
+      color: var(--text-muted);
+      max-width: 600px;
+      margin: 0 auto 40px;
+    }
+
+    .hero-buttons {
+      display: flex;
+      gap: 16px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    .btn {
+      padding: 14px 28px;
+      border-radius: 8px;
+      font-size: 1rem;
+      font-weight: 600;
+      text-decoration: none;
+      transition: all 0.2s;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .btn-primary {
+      background: var(--primary);
+      color: white;
+    }
+
+    .btn-primary:hover {
+      background: var(--primary-dark);
+      transform: translateY(-2px);
+    }
+
+    .btn-secondary {
+      background: var(--bg-card);
+      color: var(--text);
+      border: 1px solid var(--border);
+    }
+
+    .btn-secondary:hover {
+      background: var(--bg-light);
+      border-color: var(--text-muted);
+    }
+
+    /* Code block in hero */
+    .hero-code {
+      background: var(--code-bg);
+      border-radius: 12px;
+      padding: 24px 32px;
+      max-width: 500px;
+      margin: 48px auto 0;
+      text-align: left;
+      font-family: 'SF Mono', Monaco, 'Cascadia Code', monospace;
+      font-size: 1rem;
+      border: 1px solid var(--border);
+    }
+
+    .hero-code .prompt {
+      color: var(--success);
+    }
+
+    .hero-code .command {
+      color: var(--text);
+    }
+
+    .hero-code .string {
+      color: #fbbf24;
+    }
+
+    /* Pipeline Section */
+    .section {
+      padding: 80px 0;
+    }
+
+    .section-header {
+      text-align: center;
+      margin-bottom: 60px;
+    }
+
+    .section-header h2 {
+      font-size: 2.25rem;
+      font-weight: 700;
+      margin-bottom: 16px;
+    }
+
+    .section-header p {
+      color: var(--text-muted);
+      font-size: 1.1rem;
+      max-width: 600px;
+      margin: 0 auto;
+    }
+
+    .pipeline {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 24px;
+    }
+
+    .step {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 28px;
+      transition: all 0.2s;
+    }
+
+    .step:hover {
+      border-color: var(--primary);
+      transform: translateY(-4px);
+    }
+
+    .step-number {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 36px;
+      height: 36px;
+      background: var(--primary);
+      color: white;
+      border-radius: 50%;
+      font-weight: 700;
+      font-size: 0.9rem;
+      margin-bottom: 16px;
+    }
+
+    .step h3 {
+      font-size: 1.25rem;
+      margin-bottom: 12px;
+    }
+
+    .step p {
+      color: var(--text-muted);
+      font-size: 0.95rem;
+    }
+
+    /* Features */
+    .features {
+      background: var(--bg-light);
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .feature-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 32px;
+    }
+
+    .feature {
+      text-align: center;
+      padding: 20px;
+    }
+
+    .feature-icon {
+      font-size: 2.5rem;
+      margin-bottom: 16px;
+    }
+
+    .feature h3 {
+      font-size: 1.1rem;
+      margin-bottom: 8px;
+    }
+
+    .feature p {
+      color: var(--text-muted);
+      font-size: 0.9rem;
+    }
+
+    /* Usage Section */
+    .usage-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 48px;
+      align-items: start;
+    }
+
+    @media (max-width: 768px) {
+      .usage-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .usage-examples h3 {
+      font-size: 1.1rem;
+      margin-bottom: 16px;
+      color: var(--text-muted);
+    }
+
+    pre {
+      background: var(--code-bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 20px;
+      overflow-x: auto;
+      font-family: 'SF Mono', Monaco, 'Cascadia Code', monospace;
+      font-size: 0.9rem;
+      margin-bottom: 24px;
+    }
+
+    pre code {
+      color: var(--text);
+    }
+
+    .comment {
+      color: var(--text-muted);
+    }
+
+    /* Options Table */
+    .options-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 24px;
+    }
+
+    .options-table th,
+    .options-table td {
+      text-align: left;
+      padding: 14px 16px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .options-table th {
+      color: var(--text-muted);
+      font-weight: 600;
+      font-size: 0.85rem;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .options-table td:first-child {
+      font-family: 'SF Mono', Monaco, monospace;
+      color: var(--primary);
+      font-size: 0.9rem;
+    }
+
+    .options-table td:last-child {
+      color: var(--text-muted);
+    }
+
+    /* Install Section */
+    .install {
+      background: linear-gradient(135deg, var(--bg-light) 0%, var(--bg) 100%);
+      text-align: center;
+    }
+
+    .install-box {
+      background: var(--code-bg);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 24px 40px;
+      display: inline-block;
+      font-family: 'SF Mono', Monaco, monospace;
+      font-size: 1.1rem;
+      margin-top: 32px;
+    }
+
+    .install-box .prefix {
+      color: var(--text-muted);
+      margin-right: 8px;
+    }
+
+    /* Footer */
+    footer {
+      padding: 48px 0;
+      border-top: 1px solid var(--border);
+      text-align: center;
+    }
+
+    footer p {
+      color: var(--text-muted);
+      font-size: 0.9rem;
+    }
+
+    footer a {
+      color: var(--primary);
+      text-decoration: none;
+    }
+
+    footer a:hover {
+      text-decoration: underline;
+    }
+
+    .footer-links {
+      margin-top: 16px;
+      display: flex;
+      justify-content: center;
+      gap: 24px;
+    }
+
+    /* Responsive */
+    @media (max-width: 640px) {
+      .hero h1 {
+        font-size: 2.5rem;
+      }
+
+      .hero p {
+        font-size: 1.1rem;
+      }
+
+      nav {
+        display: none;
+      }
+
+      .section {
+        padding: 60px 0;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="container">
+      <a href="#" class="logo">software<span>-engineer</span></a>
+      <nav>
+        <a href="#pipeline">Pipeline</a>
+        <a href="#usage">Usage</a>
+        <a href="#install">Install</a>
+        <a href="https://github.com/muthuspark/software-engineer" target="_blank">GitHub</a>
+      </nav>
+    </div>
+  </header>
+
+  <section class="hero">
+    <div class="container">
+      <h1>Ship Code Faster with AI</h1>
+      <p>CLI that automates the full dev workflow with Claude AI - implement, review, test, and commit code with a single command.</p>
+      <div class="hero-buttons">
+        <a href="#install" class="btn btn-primary">Get Started</a>
+        <a href="https://github.com/muthuspark/software-engineer" class="btn btn-secondary" target="_blank">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/></svg>
+          GitHub
+        </a>
+      </div>
+      <div class="hero-code">
+        <span class="prompt">$</span> <span class="command">sf</span> <span class="string">"add user authentication with JWT"</span>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="pipeline">
+    <div class="container">
+      <div class="section-header">
+        <h2>7-Step AI Pipeline</h2>
+        <p>From requirement to production-ready code, fully automated.</p>
+      </div>
+      <div class="pipeline">
+        <div class="step">
+          <div class="step-number">1</div>
+          <h3>Implement</h3>
+          <p>Takes your requirement and asks Claude to implement it following your project's conventions and patterns.</p>
+        </div>
+        <div class="step">
+          <div class="step-number">2</div>
+          <h3>Simplify</h3>
+          <p>Refines the implementation for clarity, consistency, and maintainability while preserving all functionality.</p>
+        </div>
+        <div class="step">
+          <div class="step-number">3</div>
+          <h3>Review</h3>
+          <p>Reviews code for bugs, security issues, performance problems, and maintainability concerns.</p>
+        </div>
+        <div class="step">
+          <div class="step-number">4</div>
+          <h3>SOLID Check</h3>
+          <p>Ensures compliance with SOLID principles and clean code practices for long-term maintainability.</p>
+        </div>
+        <div class="step">
+          <div class="step-number">5</div>
+          <h3>Test</h3>
+          <p>Runs existing tests, adds new tests for changed code, and verifies coverage meets standards.</p>
+        </div>
+        <div class="step">
+          <div class="step-number">6</div>
+          <h3>Commit</h3>
+          <p>Creates well-formatted commits with conventional commit format and detailed explanations.</p>
+        </div>
+        <div class="step">
+          <div class="step-number">7</div>
+          <h3>Changelog</h3>
+          <p>Updates CHANGELOG.md following the Keep a Changelog format automatically.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section features">
+    <div class="container">
+      <div class="feature-grid">
+        <div class="feature">
+          <div class="feature-icon">&#9889;</div>
+          <h3>Single Command</h3>
+          <p>One command to go from idea to committed, tested code.</p>
+        </div>
+        <div class="feature">
+          <div class="feature-icon">&#128274;</div>
+          <h3>Security Focused</h3>
+          <p>Built-in security review catches vulnerabilities early.</p>
+        </div>
+        <div class="feature">
+          <div class="feature-icon">&#9881;</div>
+          <h3>Configurable</h3>
+          <p>Customize review iterations, skip steps, or do dry runs.</p>
+        </div>
+        <div class="feature">
+          <div class="feature-icon">&#128230;</div>
+          <h3>Clean Commits</h3>
+          <p>Conventional commits with meaningful messages.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="usage">
+    <div class="container">
+      <div class="section-header">
+        <h2>Usage</h2>
+        <p>Simple CLI with powerful options.</p>
+      </div>
+      <div class="usage-grid">
+        <div class="usage-examples">
+          <h3>Examples</h3>
+          <pre><code><span class="comment"># Basic usage</span>
+sf "add user authentication with JWT"
+
+<span class="comment"># Custom review iterations</span>
+sf --reviews 3 "refactor database layer"
+
+<span class="comment"># Dry run to preview commands</span>
+sf --dry-run "add dark mode toggle"
+
+<span class="comment"># Skip tests and push</span>
+sf --skip-tests --skip-push "update README"
+
+<span class="comment"># Log output to file</span>
+sf --log pipeline.log "implement caching"</code></pre>
+        </div>
+        <div class="usage-options">
+          <h3>Options</h3>
+          <table class="options-table">
+            <thead>
+              <tr>
+                <th>Option</th>
+                <th>Description</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>-d, --dry-run</td>
+                <td>Print commands without executing</td>
+              </tr>
+              <tr>
+                <td>-r, --reviews &lt;n&gt;</td>
+                <td>Number of review iterations (default: 2)</td>
+              </tr>
+              <tr>
+                <td>--skip-tests</td>
+                <td>Skip the testing step</td>
+              </tr>
+              <tr>
+                <td>--skip-push</td>
+                <td>Commit but don't push to remote</td>
+              </tr>
+              <tr>
+                <td>--log &lt;file&gt;</td>
+                <td>Log output to file</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section install" id="install">
+    <div class="container">
+      <div class="section-header">
+        <h2>Get Started</h2>
+        <p>Install globally via npm. Requires Node.js 18+ and <a href="https://github.com/anthropics/claude-code" target="_blank">Claude CLI</a>.</p>
+      </div>
+      <div class="install-box">
+        <span class="prefix">$</span> npm install -g software-engineer
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <div class="container">
+      <p>Built by <a href="https://www.linkedin.com/in/krimuthu" target="_blank">Muthu Krishnan</a>. Licensed under MIT.</p>
+      <div class="footer-links">
+        <a href="https://github.com/muthuspark/software-engineer" target="_blank">GitHub</a>
+        <a href="https://www.npmjs.com/package/software-engineer" target="_blank">npm</a>
+        <a href="https://github.com/muthuspark/software-engineer/issues" target="_blank">Issues</a>
+      </div>
+    </div>
+  </footer>
+</body>
+</html>
