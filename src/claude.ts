@@ -41,32 +41,15 @@ export async function runClaude(options: ClaudeOptions, config: Config): Promise
   logInfo('Calling Claude...');
 
   return new Promise((resolve) => {
-    let capturedOutput = '';
-
     // Spawn Claude using child_process
-    // Use 'inherit' for stdin to allow interactive input
-    // Use 'pipe' for stdout/stderr to capture output while passing through
+    // Use 'inherit' for all stdio to allow Claude's interactive UI to work properly
+    // Claude CLI requires a TTY for its rich terminal features (spinners, progress, etc.)
+    // Piping stdout/stderr causes Claude to detect non-TTY and buffer/disable output
     const child = spawn('claude', args, {
       cwd: process.cwd(),
       env: process.env,
-      stdio: ['inherit', 'pipe', 'pipe'],
+      stdio: 'inherit',
     });
-
-    // Capture and pass through stdout
-    if (child.stdout) {
-      child.stdout.on('data', (data: Buffer) => {
-        const text = data.toString();
-        process.stdout.write(text);
-        capturedOutput += text;
-      });
-    }
-
-    // Capture and pass through stderr
-    if (child.stderr) {
-      child.stderr.on('data', (data: Buffer) => {
-        process.stderr.write(data.toString());
-      });
-    }
 
     // Handle process exit
     child.on('close', (exitCode) => {
@@ -75,10 +58,10 @@ export async function runClaude(options: ClaudeOptions, config: Config): Promise
         process.exit(EXIT_INTERRUPTED);
       } else if (exitCode === EXIT_SUCCESS) {
         logSuccess('Claude completed');
-        resolve({ success: true, output: capturedOutput });
+        resolve({ success: true, output: '' });
       } else {
         logError(`Claude exited with code ${exitCode}`);
-        resolve({ success: false, output: capturedOutput });
+        resolve({ success: false, output: '' });
       }
     });
 
