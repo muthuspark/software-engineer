@@ -7,6 +7,7 @@ import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
 import { loadConfigFromEnv, mergeConfig } from './config.js';
 import { runPipeline } from './pipeline.js';
+import { checkForUpdates } from './utils/updateNotifier.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -27,6 +28,9 @@ program
   .option('--log <file>', 'Log output to file')
   .option('--dangerously-skip-permissions', 'Pass flag to claude to skip permission prompts')
   .action(async (requirement: string, options) => {
+    // Check for updates (non-blocking, fails silently)
+    await checkForUpdates(pkg.name, pkg.version).catch(() => {});
+
     const envConfig = loadConfigFromEnv();
 
     const cliConfig = {
