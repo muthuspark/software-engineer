@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+- Smart Branch Management now analyzes requirements even when on a feature branch
+- Added branch-requirement mismatch detection with warnings when current branch doesn't match new requirement
+
 ### Added
 - Adaptive Step Execution (`-a`/`--adaptive`) - AI analyzes requirements and skips irrelevant steps
 - Review depth levels (minimal/standard/thorough) based on change complexity and risk
