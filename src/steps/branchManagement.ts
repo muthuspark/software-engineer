@@ -1,6 +1,7 @@
 import { logStep, logInfo, logSuccess, logWarning, logDryRun } from '../logger.js';
 import { getGitState, branchExists, createBranch, findSimilarBranches } from '../utils/git.js';
 import { analyzeRequirement, type BranchAnalysis } from '../utils/branchAnalyzer.js';
+import { analyzeSteps, type AdaptiveAnalysis } from '../utils/stepAnalyzer.js';
 import type { Config } from '../config.js';
 
 export interface BranchResult {
@@ -8,18 +9,59 @@ export interface BranchResult {
   branchCreated: boolean;
   branchName: string;
   analysis: BranchAnalysis | null;
+  adaptiveAnalysis: AdaptiveAnalysis | null;
 }
 
-function createResult(branchName: string, analysis: BranchAnalysis | null = null, branchCreated = false): BranchResult {
-  return { success: true, branchCreated, branchName, analysis };
+function createResult(
+  branchName: string,
+  analysis: BranchAnalysis | null = null,
+  branchCreated = false,
+  adaptiveAnalysis: AdaptiveAnalysis | null = null
+): BranchResult {
+  return { success: true, branchCreated, branchName, analysis, adaptiveAnalysis };
+}
+
+function logAdaptiveAnalysis(analysis: AdaptiveAnalysis): void {
+  const { complexity, riskLevel, affectedAreas, stepRecommendation: rec } = analysis;
+
+  logInfo(`Complexity: ${complexity}, Risk: ${riskLevel}`);
+  logInfo(`Affected areas: ${affectedAreas.join(', ')}`);
+
+  const skipMap: [boolean, string][] = [
+    [rec.skipSimplify, 'simplify'],
+    [rec.skipReview, 'review'],
+    [rec.skipSolid, 'SOLID'],
+    [rec.skipTests, 'tests'],
+    [rec.skipChangelog, 'changelog'],
+  ];
+  const skipped = skipMap.filter(([skip]) => skip).map(([, name]) => name);
+
+  if (skipped.length > 0) {
+    logInfo(`Steps to skip: ${skipped.join(', ')}`);
+  } else {
+    logInfo('All steps will be executed');
+  }
+
+  const iterationLabel = rec.reviewIterations === 1 ? 'iteration' : 'iterations';
+  logInfo(`Review depth: ${rec.reviewDepth} (${rec.reviewIterations} ${iterationLabel})`);
+  logInfo(`Reasoning: ${rec.reasoning}`);
+}
+
+async function performAdaptiveAnalysis(config: Config): Promise<AdaptiveAnalysis> {
+  logInfo('Adaptive execution enabled - analyzing step requirements...');
+  const analysis = await analyzeSteps(config.requirement, config);
+  logAdaptiveAnalysis(analysis);
+  return analysis;
 }
 
 export async function stepBranchManagement(config: Config): Promise<BranchResult> {
   logStep('1/8', 'SMART BRANCH MANAGEMENT');
 
+  const adaptiveAnalysis = config.adaptiveExecution ? await performAdaptiveAnalysis(config) : null;
+
   if (config.skipBranchManagement) {
     logInfo('Branch management skipped (--skip-branch-management)');
-    return createResult('');
+    return createResult('', null, false, adaptiveAnalysis);
   }
 
   const gitState = getGitState();
@@ -27,7 +69,7 @@ export async function stepBranchManagement(config: Config): Promise<BranchResult
 
   if (!gitState.isMainBranch) {
     logInfo(`Already on branch '${gitState.currentBranch}' - skipping branch creation`);
-    return createResult(gitState.currentBranch);
+    return createResult(gitState.currentBranch, null, false, adaptiveAnalysis);
   }
 
   logInfo('On main branch - analyzing requirement...');
@@ -40,7 +82,7 @@ export async function stepBranchManagement(config: Config): Promise<BranchResult
 
   if (analysis.isTrivial) {
     logInfo('Trivial change detected - staying on current branch');
-    return createResult(gitState.currentBranch, analysis);
+    return createResult(gitState.currentBranch, analysis, false, adaptiveAnalysis);
   }
 
   // Check for similar/conflicting branches
@@ -63,7 +105,7 @@ export async function stepBranchManagement(config: Config): Promise<BranchResult
 
   if (config.dryRun) {
     logDryRun(`git checkout -b ${branchName}`);
-    return createResult(branchName, analysis);
+    return createResult(branchName, analysis, false, adaptiveAnalysis);
   }
 
   logInfo(`Creating branch: ${branchName}`);
@@ -71,9 +113,9 @@ export async function stepBranchManagement(config: Config): Promise<BranchResult
 
   if (created) {
     logSuccess(`Switched to new branch '${branchName}'`);
-    return createResult(branchName, analysis, true);
+    return createResult(branchName, analysis, true, adaptiveAnalysis);
   }
 
   logWarning(`Failed to create branch '${branchName}' - continuing on current branch`);
-  return createResult(gitState.currentBranch, analysis);
+  return createResult(gitState.currentBranch, analysis, false, adaptiveAnalysis);
 }

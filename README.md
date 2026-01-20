@@ -1,6 +1,6 @@
 # software-engineer
 
-A CLI tool that automates the software development workflow using Claude AI. It runs a 6-step pipeline to implement features, review code, ensure quality, test, commit, and update changelogs.
+A CLI tool that automates the software development workflow using Claude AI. It runs a 7-step pipeline to implement features, simplify code, review, ensure quality, test, commit, and update changelogs.
 
 ## Installation
 
@@ -25,9 +25,6 @@ sf "<requirement>"
 # Basic usage
 sf "add user authentication with JWT"
 
-# Non-interactive mode (CI/CD friendly)
-sf --auto "fix null pointer in auth module"
-
 # Custom review iterations
 sf --reviews 3 "refactor database layer"
 
@@ -45,7 +42,6 @@ sf --log pipeline.log "implement caching layer"
 
 | Option | Description |
 |--------|-------------|
-| `-a, --auto` | Non-interactive mode (skip confirmations) |
 | `-d, --dry-run` | Print commands without executing |
 | `-r, --reviews <n>` | Number of review iterations (default: 2) |
 | `--skip-tests` | Skip the testing step |
@@ -62,7 +58,6 @@ All options can be set via environment variables:
 | Variable | Description |
 |----------|-------------|
 | `SF_REVIEW_ITERATIONS` | Number of review iterations |
-| `SF_AUTO_MODE` | `true`/`false` for auto mode |
 | `SF_DRY_RUN` | `true`/`false` for dry run |
 | `SF_LOG_FILE` | Path to log file |
 | `SF_SKIP_TESTS` | `true`/`false` to skip tests |
@@ -71,7 +66,7 @@ All options can be set via environment variables:
 
 Example:
 ```bash
-SF_AUTO_MODE=true SF_REVIEWS=3 sf "add feature X"
+SF_REVIEW_ITERATIONS=3 sf "add feature X"
 ```
 
 ## Pipeline Steps
@@ -79,39 +74,37 @@ SF_AUTO_MODE=true SF_REVIEWS=3 sf "add feature X"
 ### 1. Implement
 Takes your requirement and asks Claude to implement it following project conventions.
 
-### 2. Code Review (configurable iterations)
+### 2. Code Simplification
+Refines the implementation for clarity, consistency, and maintainability while preserving functionality:
+- Follows project standards (ES modules, explicit types)
+- Enhances clarity by avoiding nested ternaries
+- Removes redundant abstractions
+
+### 3. Code Review (configurable iterations)
 Reviews the implementation for:
 - Bugs (logic errors, null refs, race conditions)
 - Security issues (injection, auth problems)
 - Performance (N+1 queries, memory leaks)
 - Maintainability (clarity, naming, complexity)
 
-### 3. SOLID & Clean Code
+### 4. SOLID & Clean Code
 Ensures compliance with:
 - SOLID principles (SRP, OCP, LSP, ISP, DIP)
 - Clean code practices (naming, small functions, no magic numbers)
 
-### 4. Testing
+### 5. Testing
 - Runs existing tests
 - Adds new tests for changed code
 - Verifies coverage
 
-### 5. Commit
+### 6. Commit
 Creates a well-formatted commit with:
 - Conventional commit format
 - Clear subject line
 - Detailed body explaining why and what
 
-### 6. Changelog
+### 7. Changelog
 Updates CHANGELOG.md following Keep a Changelog format.
-
-## Interactive Mode
-
-When not using `--auto`, you'll be prompted after each step:
-- **Y** (default) - Continue to next step
-- **n** - Exit pipeline
-- **s** - Skip current step/remaining reviews
-- **q** - Quit pipeline
 
 ## License
 

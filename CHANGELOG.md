@@ -8,6 +8,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- Adaptive Step Execution (`-a`/`--adaptive`) - AI analyzes requirements and skips irrelevant steps
+- Review depth levels (minimal/standard/thorough) based on change complexity and risk
+- `SF_ADAPTIVE_EXECUTION` environment variable support
 - Smart Branch Management step (Step 1) - automatically creates feature branches when on main/master
 - AI-powered requirement analysis to determine change type (feature/fix/refactor/docs/chore)
 - Branch naming suggestions based on requirement content

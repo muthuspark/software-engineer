@@ -9,6 +9,7 @@ export interface Config {
   skipBranchManagement: boolean;
   dangerouslySkipPermissions: boolean;
   requirement: string;
+  adaptiveExecution: boolean;
 }
 
 function parseBoolEnv(value: string | undefined, defaultValue: boolean): boolean {
@@ -31,6 +32,7 @@ export function loadConfigFromEnv(): Partial<Config> {
     skipPush: parseBoolEnv(process.env.SF_SKIP_PUSH, false),
     skipBranchManagement: parseBoolEnv(process.env.SF_SKIP_BRANCH_MANAGEMENT, false),
     dangerouslySkipPermissions: parseBoolEnv(process.env.SF_DANGEROUSLY_SKIP_PERMISSIONS, false),
+    adaptiveExecution: parseBoolEnv(process.env.SF_ADAPTIVE_EXECUTION, false),
   };
 }
 
@@ -44,5 +46,6 @@ export function mergeConfig(envConfig: Partial<Config>, cliConfig: Partial<Confi
     skipBranchManagement: cliConfig.skipBranchManagement ?? envConfig.skipBranchManagement ?? false,
     dangerouslySkipPermissions: cliConfig.dangerouslySkipPermissions ?? envConfig.dangerouslySkipPermissions ?? false,
     requirement: cliConfig.requirement ?? '',
+    adaptiveExecution: cliConfig.adaptiveExecution ?? envConfig.adaptiveExecution ?? false,
   };
 }

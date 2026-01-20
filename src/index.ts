@@ -7,6 +7,7 @@ import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
 import { loadConfigFromEnv, mergeConfig } from './config.js';
 import { runPipeline } from './pipeline.js';
+import { checkForUpdates } from './utils/updateNotifier.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -21,12 +22,16 @@ program
   .argument('<requirement>', 'The requirement or task to implement')
   .option('-d, --dry-run', 'Print commands without executing')
   .option('-r, --reviews <n>', 'Number of review iterations', '2')
+  .option('-a, --adaptive', 'Enable adaptive step execution (AI decides which steps to skip)')
   .option('--skip-tests', 'Skip the testing step')
   .option('--skip-push', 'Commit but do not push')
   .option('--skip-branch-management', 'Skip smart branch management')
   .option('--log <file>', 'Log output to file')
   .option('--dangerously-skip-permissions', 'Pass flag to claude to skip permission prompts')
   .action(async (requirement: string, options) => {
+    // Check for updates (non-blocking, fails silently)
+    await checkForUpdates(pkg.name, pkg.version).catch(() => {});
+
     const envConfig = loadConfigFromEnv();
 
     const cliConfig = {
@@ -38,6 +43,7 @@ program
       skipBranchManagement: options.skipBranchManagement ?? undefined,
       logFile: options.log ?? undefined,
       dangerouslySkipPermissions: options.dangerouslySkipPermissions ?? undefined,
+      adaptiveExecution: options.adaptive ?? undefined,
     };
 
     const config = mergeConfig(envConfig, cliConfig);
