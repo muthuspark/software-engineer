@@ -438,42 +438,47 @@
   <section class="section" id="pipeline">
     <div class="container">
       <div class="section-header">
-        <h2>7-Step AI Pipeline</h2>
+        <h2>8-Step AI Pipeline</h2>
         <p>From requirement to production-ready code, fully automated.</p>
       </div>
       <div class="pipeline">
         <div class="step">
           <div class="step-number">1</div>
+          <h3>Branch</h3>
+          <p>Automatically creates feature branches when on main/master with AI-powered naming based on your requirement.</p>
+        </div>
+        <div class="step">
+          <div class="step-number">2</div>
           <h3>Implement</h3>
           <p>Takes your requirement and asks Claude to implement it following your project's conventions and patterns.</p>
         </div>
         <div class="step">
-          <div class="step-number">2</div>
+          <div class="step-number">3</div>
           <h3>Simplify</h3>
           <p>Refines the implementation for clarity, consistency, and maintainability while preserving all functionality.</p>
         </div>
         <div class="step">
-          <div class="step-number">3</div>
+          <div class="step-number">4</div>
           <h3>Review</h3>
           <p>Reviews code for bugs, security issues, performance problems, and maintainability concerns.</p>
         </div>
         <div class="step">
-          <div class="step-number">4</div>
+          <div class="step-number">5</div>
           <h3>SOLID Check</h3>
           <p>Ensures compliance with SOLID principles and clean code practices for long-term maintainability.</p>
         </div>
         <div class="step">
-          <div class="step-number">5</div>
+          <div class="step-number">6</div>
           <h3>Test</h3>
           <p>Runs existing tests, adds new tests for changed code, and verifies coverage meets standards.</p>
         </div>
         <div class="step">
-          <div class="step-number">6</div>
+          <div class="step-number">7</div>
           <h3>Commit</h3>
           <p>Creates well-formatted commits with conventional commit format and detailed explanations.</p>
         </div>
         <div class="step">
-          <div class="step-number">7</div>
+          <div class="step-number">8</div>
           <h3>Changelog</h3>
           <p>Updates CHANGELOG.md following the Keep a Changelog format automatically.</p>
         </div>
@@ -490,14 +495,14 @@
           <p>One command to go from idea to committed, tested code.</p>
         </div>
         <div class="feature">
+          <div class="feature-icon">&#129504;</div>
+          <h3>Adaptive Execution</h3>
+          <p>AI analyzes your requirement and skips irrelevant steps automatically.</p>
+        </div>
+        <div class="feature">
           <div class="feature-icon">&#128274;</div>
           <h3>Security Focused</h3>
           <p>Built-in security review catches vulnerabilities early.</p>
-        </div>
-        <div class="feature">
-          <div class="feature-icon">&#9881;</div>
-          <h3>Configurable</h3>
-          <p>Customize review iterations, skip steps, or do dry runs.</p>
         </div>
         <div class="feature">
           <div class="feature-icon">&#128230;</div>
@@ -519,6 +524,9 @@
           <h3>Examples</h3>
           <pre><code><span class="comment"># Basic usage</span>
 sf "add user authentication with JWT"
+
+<span class="comment"># Adaptive mode - AI skips irrelevant steps</span>
+sf --adaptive "fix typo in README"
 
 <span class="comment"># Custom review iterations</span>
 sf --reviews 3 "refactor database layer"
@@ -543,6 +551,10 @@ sf --log pipeline.log "implement caching"</code></pre>
             </thead>
             <tbody>
               <tr>
+                <td>-a, --adaptive</td>
+                <td>AI skips irrelevant steps based on requirement</td>
+              </tr>
+              <tr>
                 <td>-d, --dry-run</td>
                 <td>Print commands without executing</td>
               </tr>
@@ -557,6 +569,10 @@ sf --log pipeline.log "implement caching"</code></pre>
               <tr>
                 <td>--skip-push</td>
                 <td>Commit but don't push to remote</td>
+              </tr>
+              <tr>
+                <td>--skip-branch-management</td>
+                <td>Skip automatic branch creation</td>
               </tr>
               <tr>
                 <td>--log &lt;file&gt;</td>

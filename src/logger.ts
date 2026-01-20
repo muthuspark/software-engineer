@@ -1,5 +1,9 @@
 import chalk from 'chalk';
 import { appendFileSync } from 'fs';
+import { createRequire } from 'module';
+
+const require = createRequire(import.meta.url);
+const pkg = require('../package.json');
 
 const BOX_WIDTH = 62;
 
@@ -52,7 +56,14 @@ export function logHeader(config: { reviewIterations: number; dryRun: boolean; d
   const line = '═'.repeat(BOX_WIDTH);
   console.log();
   console.log(chalk.green(`╔${line}╗`));
-  console.log(chalk.green('║') + '           SOFTWARE FACTORY PIPELINE v2.0                     ' + chalk.green('║'));
+  const title = `SOFTWARE FACTORY PIPELINE v${pkg.version}`;
+  const padding = Math.floor((BOX_WIDTH - title.length) / 2);
+  const titleLine = ' '.repeat(padding) + title + ' '.repeat(BOX_WIDTH - padding - title.length);
+  console.log(chalk.green('║') + titleLine + chalk.green('║'));
+  const author = 'Built by Muthukrishnan';
+  const authorPadding = Math.floor((BOX_WIDTH - author.length) / 2);
+  const authorLine = ' '.repeat(authorPadding) + author + ' '.repeat(BOX_WIDTH - authorPadding - author.length);
+  console.log(chalk.green('║') + chalk.dim(authorLine) + chalk.green('║'));
   console.log(chalk.green(`╠${line}╣`));
   const configLine = ` Reviews: ${config.reviewIterations} | Dry-run: ${config.dryRun}`;
   console.log(chalk.green('║') + configLine.padEnd(BOX_WIDTH) + chalk.green('║'));

@@ -3,7 +3,7 @@ import { runClaude } from '../claude.js';
 import type { Config } from '../config.js';
 
 export async function stepCommit(config: Config): Promise<boolean> {
-  logStep('6/7', 'COMMIT CHANGES');
+  logStep('7/8', 'COMMIT CHANGES');
 
   const pushInstruction = config.skipPush ? '' : 'Then push to remote.';
 
