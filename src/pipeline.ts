@@ -2,6 +2,7 @@ import chalk from 'chalk';
 import { log, logHeader, setLogFile, logInfo } from './logger.js';
 import {
   stepBranchManagement,
+  stepUnderstandCodebase,
   stepImplement,
   stepSimplify,
   stepReview,
@@ -51,14 +52,21 @@ export async function runPipeline(config: Config): Promise<void> {
   const adaptive: AdaptiveAnalysis | null = branchResult.adaptiveAnalysis;
   const rec = adaptive?.stepRecommendation;
 
-  // Step 2: Implement
+  // Step 2: Understand Codebase
+  const understandSuccess = await stepUnderstandCodebase(config);
+  if (!understandSuccess) {
+    console.log(chalk.red('\nUnderstand codebase step failed. Exiting.'));
+    process.exit(1);
+  }
+
+  // Step 3: Implement
   const implSuccess = await stepImplement(config);
   if (!implSuccess) {
     console.log(chalk.red('\nImplementation step failed. Exiting.'));
     process.exit(1);
   }
 
-  // Step 3: Simplify (can be skipped by adaptive execution)
+  // Step 4: Simplify (can be skipped by adaptive execution)
   if (rec?.skipSimplify) {
     logInfo('Simplify step skipped (adaptive execution)');
   } else {
@@ -69,7 +77,7 @@ export async function runPipeline(config: Config): Promise<void> {
     }
   }
 
-  // Step 4: Review loop (can be skipped or adjusted by adaptive execution)
+  // Step 5: Review loop (can be skipped or adjusted by adaptive execution)
   if (rec?.skipReview) {
     logInfo('Review step skipped (adaptive execution)');
   } else {
@@ -89,7 +97,7 @@ export async function runPipeline(config: Config): Promise<void> {
     }
   }
 
-  // Step 5: SOLID & Clean Code (can be skipped by adaptive execution)
+  // Step 6: SOLID & Clean Code (can be skipped by adaptive execution)
   if (rec?.skipSolid) {
     logInfo('SOLID review step skipped (adaptive execution)');
   } else {
@@ -100,8 +108,14 @@ export async function runPipeline(config: Config): Promise<void> {
     }
   }
 
-  // Step 6: Test (can be skipped by adaptive execution or CLI flag)
-  const skipTestsReason = rec?.skipTests ? 'adaptive execution' : config.skipTests ? '--skip-tests' : null;
+  // Step 7: Test (can be skipped by adaptive execution or CLI flag)
+  let skipTestsReason: string | null = null;
+  if (rec?.skipTests) {
+    skipTestsReason = 'adaptive execution';
+  } else if (config.skipTests) {
+    skipTestsReason = '--skip-tests';
+  }
+
   if (skipTestsReason) {
     logInfo(`Test step skipped (${skipTestsReason})`);
   } else {
@@ -112,14 +126,14 @@ export async function runPipeline(config: Config): Promise<void> {
     }
   }
 
-  // Step 7: Commit
+  // Step 8: Commit
   const commitSuccess = await stepCommit(config);
   if (!commitSuccess) {
     console.log(chalk.red('\nCommit step failed. Exiting.'));
     process.exit(1);
   }
 
-  // Step 8: Changelog (can be skipped by adaptive execution)
+  // Step 9: Changelog (can be skipped by adaptive execution)
   if (rec?.skipChangelog) {
     logInfo('Changelog step skipped (adaptive execution)');
   } else {

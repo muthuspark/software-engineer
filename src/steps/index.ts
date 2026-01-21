@@ -1,4 +1,5 @@
 export { stepBranchManagement, type BranchResult } from './branchManagement.js';
+export { stepUnderstandCodebase } from './understand.js';
 export { stepImplement } from './implement.js';
 export { stepSimplify } from './simplify.js';
 export { stepReview, type ReviewResult, type ReviewDepth } from './review.js';

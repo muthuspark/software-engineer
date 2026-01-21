@@ -3,7 +3,7 @@ import { runClaude } from '../claude.js';
 import type { Config } from '../config.js';
 
 export async function stepChangelog(config: Config): Promise<boolean> {
-  logStep('8/8', 'UPDATE CHANGELOG');
+  logStep('9/9', 'UPDATE CHANGELOG');
 
   const prompt = `Update CHANGELOG.md:
 

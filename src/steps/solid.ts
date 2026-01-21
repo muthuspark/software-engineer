@@ -3,7 +3,7 @@ import { runClaude } from '../claude.js';
 import type { Config } from '../config.js';
 
 export async function stepSolidCleanCode(config: Config): Promise<boolean> {
-  logStep('5/8', 'SOLID PRINCIPLES & CLEAN CODE');
+  logStep('6/9', 'SOLID PRINCIPLES & CLEAN CODE');
 
   const prompt = `Review the code for SOLID principles and Clean Code compliance:
 
