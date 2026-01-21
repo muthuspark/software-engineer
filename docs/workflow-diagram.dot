@@ -1,0 +1,389 @@
+// Software Engineer Agent Workflow Diagram
+// To render: dot -Tpng workflow-diagram.dot -o workflow-diagram.png
+// Or: dot -Tsvg workflow-diagram.dot -o workflow-diagram.svg
+
+digraph SoftwareEngineerPipeline {
+    // Graph settings
+    rankdir=TB;
+    splines=ortho;
+    nodesep=0.8;
+    ranksep=1.0;
+    fontname="Helvetica";
+    fontsize=12;
+
+    // Node defaults
+    node [
+        fontname="Helvetica",
+        fontsize=11,
+        style="filled",
+        shape="box",
+        fillcolor="#E8F4FD",
+        color="#2196F3",
+        penwidth=2
+    ];
+
+    // Edge defaults
+    edge [
+        fontname="Helvetica",
+        fontsize=10,
+        color="#666666"
+    ];
+
+    // =====================
+    // ENTRY POINT
+    // =====================
+    start [
+        label="User Requirement\n(sf \"<requirement>\")",
+        shape="oval",
+        fillcolor="#4CAF50",
+        fontcolor="white",
+        color="#388E3C"
+    ];
+
+    // =====================
+    // STEP 1: BRANCH MANAGEMENT
+    // =====================
+    subgraph cluster_branch {
+        label="Step 1: Smart Branch Management";
+        style="rounded,filled";
+        fillcolor="#FFF3E0";
+        color="#FF9800";
+        fontsize=13;
+        fontcolor="#E65100";
+
+        branch_skip_check [
+            label="--skip-branch-management?",
+            shape="diamond",
+            fillcolor="#FFE0B2",
+            color="#FF9800"
+        ];
+
+        adaptive_check [
+            label="--adaptive flag?",
+            shape="diamond",
+            fillcolor="#FFE0B2",
+            color="#FF9800"
+        ];
+
+        adaptive_analysis [
+            label="ADAPTIVE ANALYSIS\n(Claude analyzes requirement)\n\nOutputs:\n- changeType\n- complexity (low/med/high)\n- riskLevel (low/med/high)\n- affectedAreas\n- stepRecommendations",
+            shape="box",
+            fillcolor="#FFCC80",
+            color="#EF6C00"
+        ];
+
+        on_main_check [
+            label="On main branch?",
+            shape="diamond",
+            fillcolor="#FFE0B2",
+            color="#FF9800"
+        ];
+
+        branch_matches [
+            label="Current branch\nmatches requirement?",
+            shape="diamond",
+            fillcolor="#FFE0B2",
+            color="#FF9800"
+        ];
+
+        trivial_check [
+            label="Trivial change?",
+            shape="diamond",
+            fillcolor="#FFE0B2",
+            color="#FF9800"
+        ];
+
+        create_branch [
+            label="Create New Branch\n(feature/fix/refactor/docs/chore)",
+            fillcolor="#FFE0B2"
+        ];
+
+        stay_on_branch [
+            label="Stay on Current Branch",
+            fillcolor="#C8E6C9",
+            color="#4CAF50"
+        ];
+    }
+
+    // =====================
+    // STEP 2: UNDERSTAND CODEBASE
+    // =====================
+    understand [
+        label="Step 2: UNDERSTAND CODEBASE\n(Always runs)\n\nClaude analyzes:\n- Project type & frameworks\n- Directory structure\n- Architecture patterns\n- Dependency flow\n- Impact map for requirement",
+        fillcolor="#E1BEE7",
+        color="#9C27B0"
+    ];
+
+    // =====================
+    // STEP 3: IMPLEMENT
+    // =====================
+    implement [
+        label="Step 3: IMPLEMENT REQUIREMENT\n(Always runs)\n\nClaude writes code:\n- Follow project conventions\n- Handle edge cases\n- Minimal, focused changes",
+        fillcolor="#BBDEFB",
+        color="#1976D2"
+    ];
+
+    // =====================
+    // STEP 4: SIMPLIFY
+    // =====================
+    subgraph cluster_simplify {
+        label="Step 4: Code Simplification";
+        style="rounded,filled";
+        fillcolor="#E8F5E9";
+        color="#4CAF50";
+        fontsize=13;
+        fontcolor="#2E7D32";
+
+        simplify_skip [
+            label="skipSimplify?\n(from adaptive)",
+            shape="diamond",
+            fillcolor="#C8E6C9",
+            color="#4CAF50"
+        ];
+
+        simplify_run [
+            label="SIMPLIFY CODE\n\n- Reduce nesting\n- Clear naming\n- Eliminate redundancy\n- Preserve functionality",
+            fillcolor="#A5D6A7"
+        ];
+    }
+
+    // =====================
+    // STEP 5: CODE REVIEW (ITERATIVE)
+    // =====================
+    subgraph cluster_review {
+        label="Step 5: Code Review (Iterative)";
+        style="rounded,filled";
+        fillcolor="#FFF8E1";
+        color="#FFC107";
+        fontsize=13;
+        fontcolor="#F57F17";
+
+        review_skip [
+            label="skipReview?\n(from adaptive)",
+            shape="diamond",
+            fillcolor="#FFECB3",
+            color="#FFC107"
+        ];
+
+        review_depth [
+            label="Determine Review Depth\nminimal | standard | thorough",
+            shape="box",
+            fillcolor="#FFE082"
+        ];
+
+        review_loop [
+            label="REVIEW ITERATION\n(Claude reviews code)\n\nChecks:\n- Bugs & security\n- Performance\n- Maintainability",
+            fillcolor="#FFCA28",
+            color="#FF8F00"
+        ];
+
+        issues_found [
+            label="Issues found?",
+            shape="diamond",
+            fillcolor="#FFECB3",
+            color="#FFC107"
+        ];
+
+        more_iterations [
+            label="More iterations\nremaining?",
+            shape="diamond",
+            fillcolor="#FFECB3",
+            color="#FFC107"
+        ];
+    }
+
+    // =====================
+    // STEP 6: SOLID REVIEW
+    // =====================
+    subgraph cluster_solid {
+        label="Step 6: SOLID & Clean Code";
+        style="rounded,filled";
+        fillcolor="#FCE4EC";
+        color="#E91E63";
+        fontsize=13;
+        fontcolor="#AD1457";
+
+        solid_skip [
+            label="skipSolid?\n(from adaptive)",
+            shape="diamond",
+            fillcolor="#F8BBD9",
+            color="#E91E63"
+        ];
+
+        solid_run [
+            label="SOLID PRINCIPLES REVIEW\n\nS - Single Responsibility\nO - Open/Closed\nL - Liskov Substitution\nI - Interface Segregation\nD - Dependency Inversion\n\n+ Clean Code Standards",
+            fillcolor="#F48FB1"
+        ];
+    }
+
+    // =====================
+    // STEP 7: TESTING
+    // =====================
+    subgraph cluster_test {
+        label="Step 7: Testing";
+        style="rounded,filled";
+        fillcolor="#E0F7FA";
+        color="#00BCD4";
+        fontsize=13;
+        fontcolor="#00838F";
+
+        test_skip [
+            label="skipTests?\n(adaptive or --skip-tests)",
+            shape="diamond",
+            fillcolor="#B2EBF2",
+            color="#00BCD4"
+        ];
+
+        test_run [
+            label="RUN & ADD TESTS\n\n- Run existing tests\n- Fix failures\n- Add new tests\n- Verify coverage",
+            fillcolor="#80DEEA"
+        ];
+    }
+
+    // =====================
+    // STEP 8: COMMIT
+    // =====================
+    commit [
+        label="Step 8: COMMIT CHANGES\n(Always runs)\n\nCommit Message (10-point scoring):\n- Subject: type(scope): desc\n- Body: WHY + WHAT\n- Proper formatting",
+        fillcolor="#D1C4E9",
+        color="#673AB7"
+    ];
+
+    push_check [
+        label="--skip-push?",
+        shape="diamond",
+        fillcolor="#EDE7F6",
+        color="#673AB7"
+    ];
+
+    git_push [
+        label="git push",
+        fillcolor="#B39DDB"
+    ];
+
+    // =====================
+    // STEP 9: CHANGELOG
+    // =====================
+    subgraph cluster_changelog {
+        label="Step 9: Update Changelog";
+        style="rounded,filled";
+        fillcolor="#EFEBE9";
+        color="#795548";
+        fontsize=13;
+        fontcolor="#4E342E";
+
+        changelog_skip [
+            label="skipChangelog?\n(from adaptive)",
+            shape="diamond",
+            fillcolor="#D7CCC8",
+            color="#795548"
+        ];
+
+        changelog_run [
+            label="UPDATE CHANGELOG.md\n\n[Unreleased]\n- Added / Changed / Fixed",
+            fillcolor="#BCAAA4"
+        ];
+    }
+
+    // =====================
+    // END POINT
+    // =====================
+    complete [
+        label="Pipeline Complete",
+        shape="oval",
+        fillcolor="#4CAF50",
+        fontcolor="white",
+        color="#388E3C"
+    ];
+
+    // =====================
+    // CONNECTIONS
+    // =====================
+
+    // Entry to Branch Management
+    start -> branch_skip_check;
+
+    // Branch Management flow
+    branch_skip_check -> stay_on_branch [label="YES"];
+    branch_skip_check -> adaptive_check [label="NO"];
+
+    adaptive_check -> adaptive_analysis [label="YES"];
+    adaptive_check -> on_main_check [label="NO"];
+    adaptive_analysis -> on_main_check;
+
+    on_main_check -> branch_matches [label="NO\n(on feature branch)"];
+    on_main_check -> trivial_check [label="YES"];
+
+    branch_matches -> stay_on_branch [label="YES"];
+    branch_matches -> stay_on_branch [label="NO\n(warn, continue)"];
+
+    trivial_check -> stay_on_branch [label="YES"];
+    trivial_check -> create_branch [label="NO"];
+
+    create_branch -> understand;
+    stay_on_branch -> understand;
+
+    // Understand to Implement
+    understand -> implement;
+
+    // Implement to Simplify
+    implement -> simplify_skip;
+
+    simplify_skip -> simplify_run [label="NO"];
+    simplify_skip -> review_skip [label="YES"];
+    simplify_run -> review_skip;
+
+    // Review flow
+    review_skip -> review_depth [label="NO"];
+    review_skip -> solid_skip [label="YES"];
+
+    review_depth -> review_loop;
+    review_loop -> issues_found;
+
+    issues_found -> more_iterations [label="YES\n(fix issues)"];
+    issues_found -> solid_skip [label="NO\n(LGTM!)"];
+
+    more_iterations -> review_loop [label="YES"];
+    more_iterations -> solid_skip [label="NO"];
+
+    // SOLID flow
+    solid_skip -> solid_run [label="NO"];
+    solid_skip -> test_skip [label="YES"];
+    solid_run -> test_skip;
+
+    // Test flow
+    test_skip -> test_run [label="NO"];
+    test_skip -> commit [label="YES"];
+    test_run -> commit;
+
+    // Commit flow
+    commit -> push_check;
+    push_check -> git_push [label="NO"];
+    push_check -> changelog_skip [label="YES"];
+    git_push -> changelog_skip;
+
+    // Changelog flow
+    changelog_skip -> changelog_run [label="NO"];
+    changelog_skip -> complete [label="YES"];
+    changelog_run -> complete;
+
+    // =====================
+    // LEGEND
+    // =====================
+    subgraph cluster_legend {
+        label="Legend";
+        style="rounded,filled";
+        fillcolor="#F5F5F5";
+        color="#9E9E9E";
+        fontsize=12;
+
+        legend_required [label="Required Step", fillcolor="#BBDEFB", color="#1976D2"];
+        legend_skippable [label="Skippable Step\n(via adaptive)", fillcolor="#C8E6C9", color="#4CAF50"];
+        legend_decision [label="Decision Point", shape="diamond", fillcolor="#FFE082", color="#FFC107"];
+        legend_claude [label="Claude Analysis\n(AI-powered)", fillcolor="#FFCC80", color="#EF6C00"];
+
+        legend_required -> legend_skippable [style="invis"];
+        legend_skippable -> legend_decision [style="invis"];
+        legend_decision -> legend_claude [style="invis"];
+    }
+}

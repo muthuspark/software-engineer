@@ -1,0 +1,208 @@
+// Software Engineer Agent Workflow - Compact with Stage Groups
+// To render: dot -Tpng workflow-diagram-compact.dot -o workflow-diagram-compact.png
+
+digraph SoftwareEngineerPipeline {
+    rankdir=LR;
+    splines=ortho;
+    nodesep=0.3;
+    ranksep=0.4;
+    fontname="Helvetica";
+    fontsize=10;
+    compound=true;
+
+    // Node defaults
+    node [
+        fontname="Helvetica",
+        fontsize=9,
+        style="filled,rounded",
+        shape="box",
+        penwidth=1.5,
+        height=0.45,
+        margin="0.08,0.04"
+    ];
+
+    edge [
+        fontname="Helvetica",
+        fontsize=7,
+        color="#555555",
+        arrowsize=0.5
+    ];
+
+    // ==================
+    // STAGE 1: SETUP
+    // ==================
+    subgraph cluster_setup {
+        label="Setup";
+        style="rounded,filled";
+        fillcolor="#FFF8E1";
+        color="#FFB300";
+        fontsize=10;
+        fontcolor="#E65100";
+
+        start [
+            label="Requirement",
+            shape="oval",
+            fillcolor="#4CAF50",
+            fontcolor="white",
+            color="#388E3C"
+        ];
+
+        adaptive [
+            label="Adaptive\nAnalysis",
+            shape="diamond",
+            fillcolor="#FFE0B2",
+            color="#FF9800",
+            height=0.5
+        ];
+
+        branch [
+            label="1. Branch\nMgmt",
+            fillcolor="#FFF3E0",
+            color="#FF9800"
+        ];
+
+        start -> adaptive;
+        adaptive -> branch;
+    }
+
+    // ==================
+    // STAGE 2: DEVELOPMENT
+    // ==================
+    subgraph cluster_dev {
+        label="Development";
+        style="rounded,filled";
+        fillcolor="#EDE7F6";
+        color="#7E57C2";
+        fontsize=10;
+        fontcolor="#4527A0";
+
+        understand [
+            label="2. Understand\nCodebase",
+            fillcolor="#E1BEE7",
+            color="#9C27B0"
+        ];
+
+        implement [
+            label="3. Implement",
+            fillcolor="#BBDEFB",
+            color="#1976D2"
+        ];
+
+        understand -> implement;
+    }
+
+    // ==================
+    // STAGE 3: QUALITY
+    // ==================
+    subgraph cluster_quality {
+        label="Quality (Skippable*)";
+        style="rounded,filled";
+        fillcolor="#E8F5E9";
+        color="#66BB6A";
+        fontsize=10;
+        fontcolor="#2E7D32";
+
+        simplify [
+            label="4. Simplify",
+            fillcolor="#C8E6C9",
+            color="#4CAF50"
+        ];
+
+        review [
+            label="5. Review\n(loop)",
+            fillcolor="#FFF9C4",
+            color="#FBC02D"
+        ];
+
+        solid [
+            label="6. SOLID",
+            fillcolor="#F8BBD9",
+            color="#E91E63"
+        ];
+
+        simplify -> review -> solid;
+    }
+
+    // ==================
+    // STAGE 4: VALIDATION
+    // ==================
+    subgraph cluster_validate {
+        label="Validation (Skippable*)";
+        style="rounded,filled";
+        fillcolor="#E0F7FA";
+        color="#26C6DA";
+        fontsize=10;
+        fontcolor="#00838F";
+
+        test [
+            label="7. Test",
+            fillcolor="#B2EBF2",
+            color="#00BCD4"
+        ];
+    }
+
+    // ==================
+    // STAGE 5: FINALIZE
+    // ==================
+    subgraph cluster_finalize {
+        label="Finalize";
+        style="rounded,filled";
+        fillcolor="#F3E5F5";
+        color="#AB47BC";
+        fontsize=10;
+        fontcolor="#6A1B9A";
+
+        commit [
+            label="8. Commit",
+            fillcolor="#D1C4E9",
+            color="#673AB7"
+        ];
+
+        changelog [
+            label="9. Changelog*",
+            fillcolor="#D7CCC8",
+            color="#795548"
+        ];
+
+        complete [
+            label="Done",
+            shape="oval",
+            fillcolor="#4CAF50",
+            fontcolor="white",
+            color="#388E3C"
+        ];
+
+        commit -> changelog -> complete;
+    }
+
+    // ==================
+    // INTER-CLUSTER CONNECTIONS
+    // ==================
+    branch -> understand [ltail=cluster_setup, lhead=cluster_dev];
+    implement -> simplify [ltail=cluster_dev, lhead=cluster_quality];
+    solid -> test [ltail=cluster_quality, lhead=cluster_validate];
+    test -> commit [ltail=cluster_validate, lhead=cluster_finalize];
+
+    // ==================
+    // LEGEND
+    // ==================
+    subgraph cluster_legend {
+        label="Legend";
+        style="rounded,filled";
+        fillcolor="#FAFAFA";
+        color="#BDBDBD";
+        fontsize=9;
+        labelloc="t";
+
+        node [height=0.3, fontsize=8, width=0.8];
+
+        leg1 [label="Required", fillcolor="#BBDEFB", color="#1976D2"];
+        leg2 [label="Skippable*", fillcolor="#C8E6C9", color="#4CAF50"];
+        leg3 [label="Decision", shape="diamond", fillcolor="#FFE082", color="#FFC107", height=0.35];
+
+        leg1 -> leg2 -> leg3 [style="invis"];
+
+        note [label="* Skipped via\nAdaptive Analysis", shape="none", fontsize=7, fontcolor="#666666"];
+        leg3 -> note [style="invis"];
+    }
+}
