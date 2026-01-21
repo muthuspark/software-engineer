@@ -1,0 +1,77 @@
+// Software Engineer Agent Workflow - PPT Slide Version
+// Render: neato -Tpng workflow-diagram-slide.dot -o workflow-diagram-slide.png
+
+digraph SoftwareEngineerPipeline {
+    // Use neato for position control
+    layout=neato;
+    overlap=false;
+    splines=true;
+    fontname="Helvetica";
+    fontsize=11;
+
+    // Node defaults
+    node [
+        fontname="Helvetica",
+        fontsize=10,
+        style="filled,rounded",
+        shape="box",
+        penwidth=1.5,
+        width=1.0,
+        height=0.5
+    ];
+
+    edge [
+        fontname="Helvetica",
+        fontsize=8,
+        color="#555555",
+        penwidth=1.2
+    ];
+
+    // Position nodes manually for slide layout
+    // Row 1: Steps 1-5
+    start [label="Requirement", shape="ellipse", fillcolor="#4CAF50", fontcolor="white", pos="0,2!"];
+    s1 [label="1. Branch\nManagement", fillcolor="#FFE0B2", color="#FF9800", pos="1.8,2!"];
+    s2 [label="2. Understand\nCodebase", fillcolor="#E1BEE7", color="#9C27B0", pos="3.6,2!"];
+    s3 [label="3. Implement", fillcolor="#BBDEFB", color="#1976D2", pos="5.4,2!"];
+    s4 [label="4. Simplify*", fillcolor="#C8E6C9", color="#4CAF50", pos="7.2,2!"];
+    s5 [label="5. Review*\n(iterative)", fillcolor="#FFF9C4", color="#FBC02D", pos="9.0,2!"];
+
+    // Row 2: Steps 6-9 + end
+    s6 [label="6. SOLID*", fillcolor="#F8BBD9", color="#E91E63", pos="9.0,0.5!"];
+    s7 [label="7. Test*", fillcolor="#B2EBF2", color="#00BCD4", pos="7.2,0.5!"];
+    s8 [label="8. Commit", fillcolor="#D1C4E9", color="#673AB7", pos="5.4,0.5!"];
+    s9 [label="9. Changelog*", fillcolor="#D7CCC8", color="#795548", pos="3.6,0.5!"];
+    complete [label="Complete", shape="ellipse", fillcolor="#4CAF50", fontcolor="white", pos="1.8,0.5!"];
+
+    // Adaptive Analysis (center)
+    adaptive [
+        label="Adaptive Analysis\n(Claude determines\nwhich steps to skip)",
+        shape="box",
+        style="filled,rounded,dashed",
+        fillcolor="#FFCC80",
+        color="#EF6C00",
+        pos="5.4,1.25!",
+        width=1.8
+    ];
+
+    // Main flow
+    start -> s1 -> s2 -> s3 -> s4 -> s5;
+    s5 -> s6 -> s7 -> s8 -> s9 -> complete;
+
+    // Adaptive connections (dashed)
+    s1 -> adaptive [style="dashed", color="#FF9800", dir="none"];
+    adaptive -> s4 [style="dashed", color="#999999", constraint=false];
+    adaptive -> s5 [style="dashed", color="#999999", constraint=false];
+    adaptive -> s6 [style="dashed", color="#999999", constraint=false];
+    adaptive -> s7 [style="dashed", color="#999999", constraint=false];
+    adaptive -> s9 [style="dashed", color="#999999", constraint=false];
+
+    // Legend
+    legend [
+        label="* = Skippable (based on change complexity/risk)",
+        shape="none",
+        fontsize=9,
+        fontcolor="#666666",
+        pos="5.4,-0.3!"
+    ];
+}

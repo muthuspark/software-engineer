@@ -392,6 +392,23 @@
       margin: 0 auto;
     }
 
+    /* Workflow Diagram */
+    .workflow-diagram {
+      margin-bottom: 60px;
+      padding: 24px;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      overflow-x: auto;
+    }
+
+    .workflow-diagram img {
+      display: block;
+      max-width: 100%;
+      height: auto;
+      margin: 0 auto;
+    }
+
     .pipeline {
       display: grid;
       grid-template-columns: repeat(4, 1fr);
@@ -836,6 +853,9 @@
         <span class="section-label">Workflow</span>
         <h2>9-Step AI Pipeline</h2>
         <p>From requirement to production-ready code, fully automated with intelligent decision-making at every step.</p>
+      </div>
+      <div class="workflow-diagram">
+        <img src="workflow-diagram-compact.png" alt="Software Engineer Pipeline Workflow Diagram" />
       </div>
       <div class="pipeline">
         <div class="step">
