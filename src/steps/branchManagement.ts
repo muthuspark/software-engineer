@@ -74,7 +74,7 @@ function branchMatchesRequirement(currentBranch: string, analysis: BranchAnalysi
 }
 
 export async function stepBranchManagement(config: Config): Promise<BranchResult> {
-  logStep('1/8', 'SMART BRANCH MANAGEMENT');
+  logStep('1/9', 'SMART BRANCH MANAGEMENT');
 
   const adaptiveAnalysis = config.adaptiveExecution ? await performAdaptiveAnalysis(config) : null;
 

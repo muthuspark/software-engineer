@@ -78,7 +78,7 @@ export async function stepReview(
   depth: ReviewDepth = 'standard'
 ): Promise<ReviewResult> {
   const depthLabel = depth !== 'standard' ? ` [${depth}]` : '';
-  logStep('4/8', `CODE REVIEW (Round ${iteration}/${config.reviewIterations})${depthLabel}`);
+  logStep('5/9', `CODE REVIEW (Round ${iteration}/${config.reviewIterations})${depthLabel}`);
 
   const prompt = getPromptForDepth(depth);
   const result = await runClaude({ prompt, continueConversation: true }, config);
