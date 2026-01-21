@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- Understand Codebase step (Step 2/9) - analyzes codebase structure before implementation
+
+### Changed
+- Pipeline now has 9 steps: Branch → Understand → Implement → Simplify → Review → SOLID → Test → Commit → Changelog
+
 ## [0.1.14] - 2026-01-20
 
 ### Fixed
