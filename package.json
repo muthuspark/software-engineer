@@ -1,6 +1,6 @@
 {
   "name": "software-engineer",
-  "version": "0.1.19",
+  "version": "0.1.20",
   "description": "CLI that automates the full dev workflow with Claude AI - implement, review, test, and commit code with a single command",
   "type": "module",
   "main": "dist/index.js",
@@ -32,9 +32,11 @@
   },
   "dependencies": {
     "chalk": "^5.3.0",
-    "commander": "^12.1.0"
+    "commander": "^12.1.0",
+    "cross-spawn": "^7.0.6"
   },
   "devDependencies": {
+    "@types/cross-spawn": "^6.0.6",
     "@types/node": "^20.11.0",
     "typescript": "^5.3.3"
   },
