@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.1.16] - 2026-01-23
+
+### Fixed
+- Implement step now continues conversation from Understand Codebase step
+- Added `continueConversation: true` to prevent redundant codebase analysis
+
+## [0.1.15] - 2026-01-23
+
 ### Added
 - Understand Codebase step (Step 2/9) - analyzes codebase structure before implementation
 
