@@ -26,6 +26,10 @@ export async function runClaude(options: ClaudeOptions, config: Config): Promise
     args.push('--dangerously-skip-permissions');
   }
 
+  if (config.printOutput) {
+    args.push('-p');
+  }
+
   if (options.continueConversation) {
     args.push('-c');
   }

@@ -1,6 +1,6 @@
 {
   "name": "software-engineer",
-  "version": "0.1.16",
+  "version": "0.1.17",
   "description": "CLI that automates the full dev workflow with Claude AI - implement, review, test, and commit code with a single command",
   "type": "module",
   "main": "dist/index.js",

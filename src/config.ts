@@ -8,6 +8,7 @@ export interface Config {
   skipPush: boolean;
   skipBranchManagement: boolean;
   dangerouslySkipPermissions: boolean;
+  printOutput: boolean;
   requirement: string;
   adaptiveExecution: boolean;
 }
@@ -32,6 +33,7 @@ export function loadConfigFromEnv(): Partial<Config> {
     skipPush: parseBoolEnv(process.env.SF_SKIP_PUSH, false),
     skipBranchManagement: parseBoolEnv(process.env.SF_SKIP_BRANCH_MANAGEMENT, false),
     dangerouslySkipPermissions: parseBoolEnv(process.env.SF_DANGEROUSLY_SKIP_PERMISSIONS, false),
+    printOutput: parseBoolEnv(process.env.SF_PRINT_OUTPUT, false),
     adaptiveExecution: parseBoolEnv(process.env.SF_ADAPTIVE_EXECUTION, false),
   };
 }
@@ -45,6 +47,7 @@ export function mergeConfig(envConfig: Partial<Config>, cliConfig: Partial<Confi
     skipPush: cliConfig.skipPush ?? envConfig.skipPush ?? false,
     skipBranchManagement: cliConfig.skipBranchManagement ?? envConfig.skipBranchManagement ?? false,
     dangerouslySkipPermissions: cliConfig.dangerouslySkipPermissions ?? envConfig.dangerouslySkipPermissions ?? false,
+    printOutput: cliConfig.printOutput ?? envConfig.printOutput ?? false,
     requirement: cliConfig.requirement ?? '',
     adaptiveExecution: cliConfig.adaptiveExecution ?? envConfig.adaptiveExecution ?? false,
   };

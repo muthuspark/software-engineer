@@ -28,6 +28,7 @@ program
   .option('--skip-branch-management', 'Skip smart branch management')
   .option('--log <file>', 'Log output to file')
   .option('--dangerously-skip-permissions', 'Pass flag to claude to skip permission prompts')
+  .option('-p, --print', 'Print Claude output (pass -p to claude CLI)')
   .action(async (requirement: string, options) => {
     // Check for updates (non-blocking, fails silently)
     await checkForUpdates(pkg.name, pkg.version).catch(() => {});
@@ -43,6 +44,7 @@ program
       skipBranchManagement: options.skipBranchManagement ?? undefined,
       logFile: options.log ?? undefined,
       dangerouslySkipPermissions: options.dangerouslySkipPermissions ?? undefined,
+      printOutput: options.print ?? undefined,
       adaptiveExecution: options.adaptive ?? undefined,
     };
 
