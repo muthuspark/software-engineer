@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.1.19] - 2026-01-23
+
+### Fixed
+- Fixed DEP0190 deprecation warning by properly escaping args on Windows
+- Build single command string with escaped arguments instead of passing args array with shell
+
 ## [0.1.18] - 2026-01-23
 
 ### Fixed

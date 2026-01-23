@@ -6,6 +6,12 @@ import type { Config } from './config.js';
 const EXIT_SUCCESS = 0;
 const EXIT_INTERRUPTED = 130;
 
+// Escape string for Windows cmd.exe
+function escapeWinArg(arg: string): string {
+  // Wrap in double quotes and escape internal double quotes
+  return `"${arg.replace(/"/g, '\\"')}"`;
+}
+
 export interface ClaudeOptions {
   prompt: string;
   continueConversation?: boolean;
@@ -49,12 +55,22 @@ export async function runClaude(options: ClaudeOptions, config: Config): Promise
     // Use 'inherit' for all stdio to allow Claude's interactive UI to work properly
     // Claude CLI requires a TTY for its rich terminal features (spinners, progress, etc.)
     // Piping stdout/stderr causes Claude to detect non-TTY and buffer/disable output
-    const child = spawn('claude', args, {
-      cwd: process.cwd(),
-      env: process.env,
-      stdio: 'inherit',
-      shell: process.platform === 'win32',
-    });
+    const isWindows = process.platform === 'win32';
+
+    // On Windows, we need shell:true to find .cmd wrappers, but must build
+    // a single command string to avoid DEP0190 deprecation warning
+    const child = isWindows
+      ? spawn(`claude ${args.map(escapeWinArg).join(' ')}`, [], {
+          cwd: process.cwd(),
+          env: process.env,
+          stdio: 'inherit',
+          shell: true,
+        })
+      : spawn('claude', args, {
+          cwd: process.cwd(),
+          env: process.env,
+          stdio: 'inherit',
+        });
 
     // Handle process exit
     child.on('close', (exitCode) => {
