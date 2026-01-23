@@ -53,6 +53,7 @@ export async function runClaude(options: ClaudeOptions, config: Config): Promise
       cwd: process.cwd(),
       env: process.env,
       stdio: 'inherit',
+      shell: process.platform === 'win32',
     });
 
     // Handle process exit
