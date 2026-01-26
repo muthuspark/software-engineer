@@ -5,9 +5,38 @@ import chalk from 'chalk';
 import { readFileSync } from 'fs';
 import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
+import { createInterface } from 'readline';
 import { loadConfigFromEnv, mergeConfig } from './config.js';
 import { runPipeline } from './pipeline.js';
 import { checkForUpdates } from './utils/updateNotifier.js';
+
+async function promptForRequirement(): Promise<string> {
+  console.log(chalk.cyan('Enter your requirement (press Ctrl+D or type END on a new line when done):'));
+  console.log(chalk.gray('─'.repeat(60)));
+
+  const rl = createInterface({
+    input: process.stdin,
+    output: process.stdout,
+    terminal: process.stdin.isTTY ?? false,
+  });
+
+  const lines: string[] = [];
+
+  return new Promise((resolve) => {
+    rl.on('line', (line) => {
+      if (line.trim().toUpperCase() === 'END') {
+        rl.close();
+      } else {
+        lines.push(line);
+      }
+    });
+
+    rl.on('close', () => {
+      console.log(chalk.gray('─'.repeat(60)));
+      resolve(lines.join('\n').trim());
+    });
+  });
+}
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -19,7 +48,7 @@ program
   .name('sf')
   .description('Software Factory Pipeline - Automate development workflow with Claude AI')
   .version(pkg.version)
-  .argument('<requirement>', 'The requirement or task to implement')
+  .argument('[requirement]', 'The requirement or task to implement')
   .option('-d, --dry-run', 'Print commands without executing')
   .option('-r, --reviews <n>', 'Number of review iterations', '2')
   .option('-a, --adaptive', 'Enable adaptive step execution (AI decides which steps to skip)')
@@ -29,14 +58,20 @@ program
   .option('--log <file>', 'Log output to file')
   .option('--dangerously-skip-permissions', 'Pass flag to claude to skip permission prompts')
   .option('-p, --print', 'Print Claude output (pass -p to claude CLI)')
-  .action(async (requirement: string, options) => {
+  .action(async (requirement: string | undefined, options) => {
     // Check for updates (non-blocking, fails silently)
     await checkForUpdates(pkg.name, pkg.version).catch(() => {});
+
+    // Prompt for requirement if not provided
+    let finalRequirement = requirement;
+    if (!finalRequirement) {
+      finalRequirement = await promptForRequirement();
+    }
 
     const envConfig = loadConfigFromEnv();
 
     const cliConfig = {
-      requirement,
+      requirement: finalRequirement,
       dryRun: options.dryRun ?? undefined,
       reviewIterations: options.reviews ? parseInt(options.reviews, 10) : undefined,
       skipTests: options.skipTests ?? undefined,

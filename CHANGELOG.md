@@ -7,6 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.1.21] - 2026-01-26
+
+### Added
+- Interactive multiline input prompt when running `sf` with no arguments
+- Users can now enter requirements interactively, ending with `END` on a new line or Ctrl+D
+
+### Changed
+- Requirement argument is now optional (was previously required)
+
 ## [0.1.20] - 2026-01-23
 
 ### Changed
