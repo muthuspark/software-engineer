@@ -7,6 +7,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- Real-time progress visualization using Claude's stream-json output format
+- Colorized, emoji-enhanced output showing file operations and tool usage
+- Live progress indicators for Read, Write, Edit, Bash, Grep, and Glob operations
+
+### Changed
+- Claude CLI now always runs with `-p --output-format=stream-json --verbose` flags
+- Merged understand stage into implement stage for more efficient execution
+- Pipeline now has 8 steps: Branch → Implement → Simplify → Review → SOLID → Test → Commit → Changelog
+- Implement step now performs codebase understanding as part of implementation
+- README updated to reflect 8-step pipeline and new features
+
 ## [0.1.21] - 2026-01-26
 
 ### Added
