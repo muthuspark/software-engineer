@@ -3,7 +3,7 @@ import { runClaude } from '../claude.js';
 import type { Config } from '../config.js';
 
 export async function stepSimplify(config: Config): Promise<boolean> {
-  logStep('4/9', 'CODE SIMPLIFICATION');
+  logStep('3/8', 'CODE SIMPLIFICATION');
 
   const prompt = `Refine the recently modified code for clarity, consistency, and maintainability while preserving all functionality.
 

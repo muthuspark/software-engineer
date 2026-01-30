@@ -106,28 +106,19 @@ digraph SoftwareEngineerPipeline {
     }
 
     // =====================
-    // STEP 2: UNDERSTAND CODEBASE
-    // =====================
-    understand [
-        label="Step 2: UNDERSTAND CODEBASE\n(Always runs)\n\nClaude analyzes:\n- Project type & frameworks\n- Directory structure\n- Architecture patterns\n- Dependency flow\n- Impact map for requirement",
-        fillcolor="#E1BEE7",
-        color="#9C27B0"
-    ];
-
-    // =====================
-    // STEP 3: IMPLEMENT
+    // STEP 2: IMPLEMENT
     // =====================
     implement [
-        label="Step 3: IMPLEMENT REQUIREMENT\n(Always runs)\n\nClaude writes code:\n- Follow project conventions\n- Handle edge cases\n- Minimal, focused changes",
+        label="Step 2: IMPLEMENT REQUIREMENT\n(Always runs)\n\nClaude understands codebase and writes code:\n- Analyze project structure & patterns\n- Follow project conventions\n- Handle edge cases\n- Minimal, focused changes",
         fillcolor="#BBDEFB",
         color="#1976D2"
     ];
 
     // =====================
-    // STEP 4: SIMPLIFY
+    // STEP 3: SIMPLIFY
     // =====================
     subgraph cluster_simplify {
-        label="Step 4: Code Simplification";
+        label="Step 3: Code Simplification";
         style="rounded,filled";
         fillcolor="#E8F5E9";
         color="#4CAF50";
@@ -148,10 +139,10 @@ digraph SoftwareEngineerPipeline {
     }
 
     // =====================
-    // STEP 5: CODE REVIEW (ITERATIVE)
+    // STEP 4: CODE REVIEW (ITERATIVE)
     // =====================
     subgraph cluster_review {
-        label="Step 5: Code Review (Iterative)";
+        label="Step 4: Code Review (Iterative)";
         style="rounded,filled";
         fillcolor="#FFF8E1";
         color="#FFC107";
@@ -193,10 +184,10 @@ digraph SoftwareEngineerPipeline {
     }
 
     // =====================
-    // STEP 6: SOLID REVIEW
+    // STEP 5: SOLID REVIEW
     // =====================
     subgraph cluster_solid {
-        label="Step 6: SOLID & Clean Code";
+        label="Step 5: SOLID & Clean Code";
         style="rounded,filled";
         fillcolor="#FCE4EC";
         color="#E91E63";
@@ -217,10 +208,10 @@ digraph SoftwareEngineerPipeline {
     }
 
     // =====================
-    // STEP 7: TESTING
+    // STEP 6: TESTING
     // =====================
     subgraph cluster_test {
-        label="Step 7: Testing";
+        label="Step 6: Testing";
         style="rounded,filled";
         fillcolor="#E0F7FA";
         color="#00BCD4";
@@ -241,10 +232,10 @@ digraph SoftwareEngineerPipeline {
     }
 
     // =====================
-    // STEP 8: COMMIT
+    // STEP 7: COMMIT
     // =====================
     commit [
-        label="Step 8: COMMIT CHANGES\n(Always runs)\n\nCommit Message (10-point scoring):\n- Subject: type(scope): desc\n- Body: WHY + WHAT\n- Proper formatting",
+        label="Step 7: COMMIT CHANGES\n(Always runs)\n\nCommit Message (10-point scoring):\n- Subject: type(scope): desc\n- Body: WHY + WHAT\n- Proper formatting",
         fillcolor="#D1C4E9",
         color="#673AB7"
     ];
@@ -262,10 +253,10 @@ digraph SoftwareEngineerPipeline {
     ];
 
     // =====================
-    // STEP 9: CHANGELOG
+    // STEP 8: CHANGELOG
     // =====================
     subgraph cluster_changelog {
-        label="Step 9: Update Changelog";
+        label="Step 8: Update Changelog";
         style="rounded,filled";
         fillcolor="#EFEBE9";
         color="#795548";
@@ -320,11 +311,8 @@ digraph SoftwareEngineerPipeline {
     trivial_check -> stay_on_branch [label="YES"];
     trivial_check -> create_branch [label="NO"];
 
-    create_branch -> understand;
-    stay_on_branch -> understand;
-
-    // Understand to Implement
-    understand -> implement;
+    create_branch -> implement;
+    stay_on_branch -> implement;
 
     // Implement to Simplify
     implement -> simplify_skip;

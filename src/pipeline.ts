@@ -2,7 +2,6 @@ import chalk from 'chalk';
 import { log, logHeader, setLogFile, logInfo } from './logger.js';
 import {
   stepBranchManagement,
-  stepUnderstandCodebase,
   stepImplement,
   stepSimplify,
   stepReview,
@@ -52,14 +51,7 @@ export async function runPipeline(config: Config): Promise<void> {
   const adaptive: AdaptiveAnalysis | null = branchResult.adaptiveAnalysis;
   const rec = adaptive?.stepRecommendation;
 
-  // Step 2: Understand Codebase
-  const understandSuccess = await stepUnderstandCodebase(config);
-  if (!understandSuccess) {
-    console.log(chalk.red('\nUnderstand codebase step failed. Exiting.'));
-    process.exit(1);
-  }
-
-  // Step 3: Implement
+  // Step 2: Implement
   const implSuccess = await stepImplement(config);
   if (!implSuccess) {
     console.log(chalk.red('\nImplementation step failed. Exiting.'));

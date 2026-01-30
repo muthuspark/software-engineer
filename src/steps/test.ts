@@ -4,7 +4,7 @@ import { runClaude } from '../claude.js';
 import type { Config } from '../config.js';
 
 export async function stepTest(config: Config): Promise<boolean> {
-  logStep('7/9', 'TESTING');
+  logStep('6/8', 'TESTING');
 
   if (config.skipTests) {
     console.log(chalk.yellow('[SKIPPED]') + ' Testing step skipped via configuration');
