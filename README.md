@@ -13,6 +13,26 @@ npm install -g software-engineer
 - Node.js >= 18.0.0
 - [Claude CLI](https://github.com/anthropics/claude-code) installed and configured
 
+## Recommended Workflow
+
+For best results, follow this workflow:
+
+1. **Plan with Claude**: Start a Claude session and use plan mode to design what needs to be done
+   - Discuss requirements with Claude
+   - Iterate and refine the plan until it's complete
+   - Claude will generate a plan file (usually a `.md` file)
+
+2. **Execute with software-engineer**: Once your plan is finalized, close Claude and run:
+   ```bash
+   sf "implement the plan mentioned in /path/to/plan.md"
+   ```
+
+3. **Wait for completion**: The tool will automatically execute the entire pipeline and implement your plan
+
+This approach gives you the best of both worlds:
+- **Interactive planning** with Claude to ensure the approach is correct
+- **Automated execution** with comprehensive quality checks
+
 ## Usage
 
 ```bash
@@ -22,7 +42,10 @@ sf "<requirement>"
 ### Examples
 
 ```bash
-# Basic usage
+# Recommended: Use with a plan file from Claude
+sf "implement the plan mentioned in ./docs/feature-plan.md"
+
+# Basic usage with direct requirement
 sf "add user authentication with JWT"
 
 # Custom review iterations
