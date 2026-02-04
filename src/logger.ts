@@ -52,7 +52,7 @@ export function logStep(stepNum: string, title: string): void {
   }
 }
 
-export function logHeader(config: { reviewIterations: number; dryRun: boolean; dangerouslySkipPermissions: boolean; allowedTools?: string }): void {
+export function logHeader(config: { reviewIterations: number; dryRun: boolean; dangerouslySkipPermissions: boolean; allowedTools?: string; implementationOnly: boolean }): void {
   const line = '═'.repeat(BOX_WIDTH);
   console.log();
   console.log(chalk.green(`╔${line}╗`));
@@ -65,7 +65,10 @@ export function logHeader(config: { reviewIterations: number; dryRun: boolean; d
   const authorLine = ' '.repeat(authorPadding) + author + ' '.repeat(BOX_WIDTH - authorPadding - author.length);
   console.log(chalk.green('║') + chalk.dim(authorLine) + chalk.green('║'));
   console.log(chalk.green(`╠${line}╣`));
-  const configLine = ` Reviews: ${config.reviewIterations} | Dry-run: ${config.dryRun}`;
+  let configLine = ` Reviews: ${config.reviewIterations} | Dry-run: ${config.dryRun}`;
+  if (config.implementationOnly) {
+    configLine += ' | Mode: implementation-only';
+  }
   console.log(chalk.green('║') + configLine.padEnd(BOX_WIDTH) + chalk.green('║'));
   if (config.dangerouslySkipPermissions) {
     const permLine = ' ' + chalk.yellow('⚠ Skip permissions: enabled');
