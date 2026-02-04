@@ -103,6 +103,8 @@ export async function runClaude(options: ClaudeOptions, config: Config): Promise
 
   if (config.dangerouslySkipPermissions) {
     args.push('--dangerously-skip-permissions');
+  } else if (config.allowedTools) {
+    args.push('--allowedTools', config.allowedTools);
   }
 
   // Always pass -p for output and add streaming JSON output format

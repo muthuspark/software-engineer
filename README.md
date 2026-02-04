@@ -2,6 +2,8 @@
 
 A CLI tool that automates the software development workflow using Claude AI. It runs an 8-step pipeline to implement features, simplify code, review, ensure quality, test, commit, and update changelogs with real-time progress visualization.
 
+By default, Claude is automatically granted permission to **Edit, Read, and Bash** tools, allowing seamless autonomous operation without constant permission prompts.
+
 ## Installation
 
 ```bash
@@ -32,6 +34,7 @@ For best results, follow this workflow:
 This approach gives you the best of both worlds:
 - **Interactive planning** with Claude to ensure the approach is correct
 - **Automated execution** with comprehensive quality checks
+- **Seamless operation** - Claude automatically has permission to edit files, read code, and run commands without prompts
 
 ## Usage
 
@@ -61,6 +64,46 @@ sf --skip-tests --skip-push "update README"
 sf --log pipeline.log "implement caching layer"
 ```
 
+## Permission Management
+
+By default, `software-engineer` automatically grants Claude permission to use **Edit, Read, and Bash** tools without prompting. This streamlines the workflow while maintaining control over file operations.
+
+### Default Behavior
+
+When you run the tool, it automatically passes `--allowedTools "Edit,Read,Bash"` to Claude:
+- **Edit**: Modify existing files
+- **Read**: Read file contents
+- **Bash**: Execute shell commands (git, npm, build tools, etc.)
+
+This means Claude can work autonomously on your codebase without constant permission prompts, making the pipeline smooth and efficient.
+
+### Customizing Allowed Tools
+
+You can customize which tools are auto-approved:
+
+```bash
+# Allow additional tools
+sf --allowedTools "Edit,Read,Write,Bash,Grep" "add new feature"
+
+# Via environment variable
+SF_ALLOWED_TOOLS="Edit,Read,Write,Bash" sf "implement caching"
+
+# Restrict to read-only operations
+sf --allowedTools "Read,Grep,Glob" "analyze the codebase"
+```
+
+### Skipping All Permissions (Use with Caution)
+
+For fully autonomous operation in trusted environments (like CI/CD), you can skip all permission checks:
+
+```bash
+sf --dangerously-skip-permissions "implement feature"
+```
+
+**Warning**: This bypasses ALL permission prompts. Only use in isolated, secure environments.
+
+**Note**: When `--dangerously-skip-permissions` is used, the `allowedTools` setting is ignored.
+
 ## Options
 
 | Option | Description |
@@ -72,7 +115,8 @@ sf --log pipeline.log "implement caching layer"
 | `--skip-push` | Commit but don't push to remote |
 | `--skip-branch-management` | Skip smart branch management |
 | `--log <file>` | Log output to file |
-| `--dangerously-skip-permissions` | Skip Claude permission prompts |
+| `--allowedTools <tools>` | Comma-separated list of allowed tools (default: "Edit,Read,Bash") |
+| `--dangerously-skip-permissions` | Skip Claude permission prompts (overrides allowedTools) |
 | `-h, --help` | Display help |
 | `-V, --version` | Display version |
 
@@ -89,7 +133,8 @@ All options can be set via environment variables:
 | `SF_SKIP_TESTS` | `true`/`false` to skip tests |
 | `SF_SKIP_PUSH` | `true`/`false` to skip push |
 | `SF_SKIP_BRANCH_MANAGEMENT` | `true`/`false` to skip branch management |
-| `SF_DANGEROUSLY_SKIP_PERMISSIONS` | `true`/`false` to skip Claude permissions |
+| `SF_ALLOWED_TOOLS` | Comma-separated list of allowed tools (default: "Edit,Read,Bash") |
+| `SF_DANGEROUSLY_SKIP_PERMISSIONS` | `true`/`false` to skip Claude permissions (overrides allowedTools) |
 
 Example:
 ```bash
@@ -98,6 +143,7 @@ SF_REVIEW_ITERATIONS=3 sf "add feature X"
 
 ## Features
 
+- **Automatic Permission Management**: Claude is pre-authorized to Edit, Read, and execute Bash commands by default - no constant permission prompts
 - **Real-time Progress Visualization**: See exactly what Claude is doing with colorized, emoji-enhanced output
   - 📖 File reads in cyan
   - ✍️ File writes in green

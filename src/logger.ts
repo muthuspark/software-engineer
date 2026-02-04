@@ -52,7 +52,7 @@ export function logStep(stepNum: string, title: string): void {
   }
 }
 
-export function logHeader(config: { reviewIterations: number; dryRun: boolean; dangerouslySkipPermissions: boolean }): void {
+export function logHeader(config: { reviewIterations: number; dryRun: boolean; dangerouslySkipPermissions: boolean; allowedTools?: string }): void {
   const line = '═'.repeat(BOX_WIDTH);
   console.log();
   console.log(chalk.green(`╔${line}╗`));
@@ -70,6 +70,9 @@ export function logHeader(config: { reviewIterations: number; dryRun: boolean; d
   if (config.dangerouslySkipPermissions) {
     const permLine = ' ' + chalk.yellow('⚠ Skip permissions: enabled');
     console.log(chalk.green('║') + permLine + ' '.repeat(BOX_WIDTH - stripAnsi(permLine).length) + chalk.green('║'));
+  } else if (config.allowedTools) {
+    const toolsLine = ' ' + chalk.cyan(`🔓 Allowed tools: ${config.allowedTools}`);
+    console.log(chalk.green('║') + toolsLine + ' '.repeat(BOX_WIDTH - stripAnsi(toolsLine).length) + chalk.green('║'));
   }
   console.log(chalk.green(`╚${line}╝`));
   console.log();

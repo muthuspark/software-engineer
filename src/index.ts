@@ -57,6 +57,7 @@ program
   .option('--skip-branch-management', 'Skip smart branch management')
   .option('--log <file>', 'Log output to file')
   .option('--dangerously-skip-permissions', 'Pass flag to claude to skip permission prompts')
+  .option('--allowedTools <tools>', 'Comma-separated list of allowed tools (default: "Edit,Read,Bash")')
   .action(async (requirement: string | undefined, options) => {
     // Check for updates (non-blocking, fails silently)
     await checkForUpdates(pkg.name, pkg.version).catch(() => {});
@@ -78,6 +79,7 @@ program
       skipBranchManagement: options.skipBranchManagement ?? undefined,
       logFile: options.log ?? undefined,
       dangerouslySkipPermissions: options.dangerouslySkipPermissions ?? undefined,
+      allowedTools: options.allowedTools ?? undefined,
       adaptiveExecution: options.adaptive ?? undefined,
     };
 

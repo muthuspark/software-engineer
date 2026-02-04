@@ -8,6 +8,7 @@ export interface Config {
   skipPush: boolean;
   skipBranchManagement: boolean;
   dangerouslySkipPermissions: boolean;
+  allowedTools?: string;
   requirement: string;
   adaptiveExecution: boolean;
 }
@@ -32,11 +33,19 @@ export function loadConfigFromEnv(): Partial<Config> {
     skipPush: parseBoolEnv(process.env.SF_SKIP_PUSH, false),
     skipBranchManagement: parseBoolEnv(process.env.SF_SKIP_BRANCH_MANAGEMENT, false),
     dangerouslySkipPermissions: parseBoolEnv(process.env.SF_DANGEROUSLY_SKIP_PERMISSIONS, false),
+    allowedTools: process.env.SF_ALLOWED_TOOLS || undefined,
     adaptiveExecution: parseBoolEnv(process.env.SF_ADAPTIVE_EXECUTION, false),
   };
 }
 
 export function mergeConfig(envConfig: Partial<Config>, cliConfig: Partial<Config>): Config {
+  const dangerouslySkipPermissions = cliConfig.dangerouslySkipPermissions ?? envConfig.dangerouslySkipPermissions ?? false;
+
+  // Set default allowedTools to "Edit,Read,Bash" unless dangerouslySkipPermissions is true
+  const allowedTools = dangerouslySkipPermissions
+    ? undefined
+    : (cliConfig.allowedTools ?? envConfig.allowedTools ?? 'Edit,Read,Bash');
+
   return {
     reviewIterations: cliConfig.reviewIterations ?? envConfig.reviewIterations ?? DEFAULT_REVIEW_ITERATIONS,
     dryRun: cliConfig.dryRun ?? envConfig.dryRun ?? false,
@@ -44,7 +53,8 @@ export function mergeConfig(envConfig: Partial<Config>, cliConfig: Partial<Confi
     skipTests: cliConfig.skipTests ?? envConfig.skipTests ?? false,
     skipPush: cliConfig.skipPush ?? envConfig.skipPush ?? false,
     skipBranchManagement: cliConfig.skipBranchManagement ?? envConfig.skipBranchManagement ?? false,
-    dangerouslySkipPermissions: cliConfig.dangerouslySkipPermissions ?? envConfig.dangerouslySkipPermissions ?? false,
+    dangerouslySkipPermissions,
+    allowedTools,
     requirement: cliConfig.requirement ?? '',
     adaptiveExecution: cliConfig.adaptiveExecution ?? envConfig.adaptiveExecution ?? false,
   };
