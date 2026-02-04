@@ -11,6 +11,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Real-time progress visualization using Claude's stream-json output format
 - Colorized, emoji-enhanced output showing file operations and tool usage
 - Live progress indicators for Read, Write, Edit, Bash, Grep, and Glob operations
+- Implementation-only mode (`--implementation-only` flag) for rapid code quality iteration
+- `SF_IMPLEMENTATION_ONLY` environment variable support
+- Helper functions in pipeline for cleaner error handling and skip logic (exitWithError, getSkipReason, determineSkipTestsReason)
+- Named constants for exit codes (EXIT_CODE_FAILURE, EXIT_CODE_INTERRUPT)
+- Banner display for implementation-only mode showing active and skipped steps
+- Warning message when implementation-only mode overrides adaptive execution flag
 
 ### Changed
 - Claude CLI now always runs with `-p --output-format=stream-json --verbose` flags
@@ -18,6 +24,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Pipeline now has 8 steps: Branch → Implement → Simplify → Review → SOLID → Test → Commit → Changelog
 - Implement step now performs codebase understanding as part of implementation
 - README updated to reflect 8-step pipeline and new features
+- Pipeline refactored following SOLID principles and Clean Code practices
+- Logger header now displays "Mode: implementation-only" when active
+- Implementation-only mode automatically skips 5 steps: Branch Management, Simplify, Tests, Commit, and Changelog
+- Completion message now warns about uncommitted changes in implementation-only mode
 
 ## [0.1.21] - 2026-01-26
 
