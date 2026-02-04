@@ -55,6 +55,7 @@ program
   .option('--skip-tests', 'Skip the testing step')
   .option('--skip-push', 'Commit but do not push')
   .option('--skip-branch-management', 'Skip smart branch management')
+  .option('--implementation-only', 'Run only: Implement → Review → SOLID (skips branch, tests, commit)')
   .option('--log <file>', 'Log output to file')
   .option('--dangerously-skip-permissions', 'Pass flag to claude to skip permission prompts')
   .option('--allowedTools <tools>', 'Comma-separated list of allowed tools (default: "Edit,Read,Bash")')
@@ -81,9 +82,24 @@ program
       dangerouslySkipPermissions: options.dangerouslySkipPermissions ?? undefined,
       allowedTools: options.allowedTools ?? undefined,
       adaptiveExecution: options.adaptive ?? undefined,
+      implementationOnly: options.implementationOnly ?? undefined,
     };
 
     const config = mergeConfig(envConfig, cliConfig);
+
+    // Handle implementation-only mode
+    if (config.implementationOnly) {
+      // Implementation-only mode automatically skips branch management and tests
+      config.skipBranchManagement = true;
+      config.skipTests = true;
+
+      // Warn if adaptive execution was explicitly requested but will be overridden
+      const adaptiveWasRequested = options.adaptive || process.env.SF_ADAPTIVE_EXECUTION === 'true';
+      if (config.adaptiveExecution && adaptiveWasRequested) {
+        console.log(chalk.yellow('⚠ Implementation-only mode overrides --adaptive flag'));
+      }
+      config.adaptiveExecution = false;
+    }
 
     if (!config.requirement) {
       console.error(chalk.red('Error:') + ' No requirement provided');

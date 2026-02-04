@@ -11,6 +11,7 @@ export interface Config {
   allowedTools?: string;
   requirement: string;
   adaptiveExecution: boolean;
+  implementationOnly: boolean;
 }
 
 function parseBoolEnv(value: string | undefined, defaultValue: boolean): boolean {
@@ -35,6 +36,7 @@ export function loadConfigFromEnv(): Partial<Config> {
     dangerouslySkipPermissions: parseBoolEnv(process.env.SF_DANGEROUSLY_SKIP_PERMISSIONS, false),
     allowedTools: process.env.SF_ALLOWED_TOOLS || undefined,
     adaptiveExecution: parseBoolEnv(process.env.SF_ADAPTIVE_EXECUTION, false),
+    implementationOnly: parseBoolEnv(process.env.SF_IMPLEMENTATION_ONLY, false),
   };
 }
 
@@ -57,5 +59,6 @@ export function mergeConfig(envConfig: Partial<Config>, cliConfig: Partial<Confi
     allowedTools,
     requirement: cliConfig.requirement ?? '',
     adaptiveExecution: cliConfig.adaptiveExecution ?? envConfig.adaptiveExecution ?? false,
+    implementationOnly: cliConfig.implementationOnly ?? envConfig.implementationOnly ?? false,
   };
 }
