@@ -4,6 +4,11 @@ A CLI tool that automates the software development workflow using Claude AI. It 
 
 By default, Claude is automatically granted permission to **Edit, Read, and Bash** tools, allowing seamless autonomous operation without constant permission prompts.
 
+
+## The Brain
+
+![](docs/architecture-diagram.png)
+
 ## Installation
 
 ```bash

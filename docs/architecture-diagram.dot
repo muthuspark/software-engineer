@@ -1,0 +1,337 @@
+digraph SoftwareEngineer {
+  // Graph settings
+  rankdir=TB;
+  compound=true;
+  newrank=true;
+  splines=polyline;
+  nodesep=0.8;
+  ranksep=1.2;
+
+  // Global node style
+  node [shape=box, style="rounded,filled", fontname="Arial", fontsize=10];
+  edge [fontname="Arial", fontsize=9];
+
+  // Color scheme
+  graph [fontname="Arial", fontsize=12, labeljust=l, bgcolor="#f5f5f5"];
+
+  // ===== LAYER 1: USER INTERFACE =====
+  subgraph cluster_user {
+    label="USER INTERFACE LAYER";
+    style=filled;
+    color="#2c3e50";
+    fontcolor=white;
+    fillcolor="#34495e";
+
+    user [label="Developer\n(User)", shape=octagon, fillcolor="#3498db", fontcolor=white];
+    cli_input [label="CLI Input\n• Requirement\n• Flags/Options\n• ENV Variables", fillcolor="#5dade2", fontcolor=white];
+
+    user -> cli_input [label="Executes 'sf'"];
+  }
+
+  // ===== LAYER 2: ENTRY POINT & CONFIGURATION =====
+  subgraph cluster_entry {
+    label="ENTRY POINT & CONFIG LAYER";
+    style=filled;
+    color="#16a085";
+    fontcolor=white;
+    fillcolor="#1abc9c";
+
+    subgraph cluster_index {
+      label="index.ts";
+      style=filled;
+      fillcolor="#48c9b0";
+
+      commander [label="Commander\nCLI Framework\n• Parse arguments\n• Option handling\n• Multi-line input", fillcolor="#76d7c4"];
+      version_check [label="Update Notifier\n• Check npm registry\n• Version comparison\n• Alert user", fillcolor="#76d7c4"];
+    }
+
+    subgraph cluster_config {
+      label="config.ts";
+      style=filled;
+      fillcolor="#48c9b0";
+
+      env_parser [label="ENV Parser\n• SF_* variables\n• Boolean parsing\n• Type validation", fillcolor="#76d7c4"];
+      config_merger [label="Config Merger\nPriority:\nCLI > ENV > Defaults", fillcolor="#76d7c4"];
+      config_store [label="Config Store\n{\n  requirement,\n  reviewIterations,\n  adaptiveExecution,\n  implementationOnly,\n  allowedTools,\n  ...\n}", fillcolor="#76d7c4", shape=note];
+    }
+
+    commander -> env_parser [style=dashed];
+    env_parser -> config_merger;
+    commander -> config_merger;
+    config_merger -> config_store;
+    version_check -> commander [style=dashed, label="async"];
+  }
+
+  // ===== LAYER 3: LOGGER & OUTPUT =====
+  subgraph cluster_logger {
+    label="LOGGING & OUTPUT LAYER";
+    style=filled;
+    color="#8e44ad";
+    fontcolor=white;
+    fillcolor="#9b59b6";
+
+    subgraph cluster_logger_impl {
+      label="logger.ts";
+      style=filled;
+      fillcolor="#af7ac5";
+
+      console_out [label="Console Output\n• chalk colors\n• Box drawing\n• Timestamps\n• Emojis", fillcolor="#c39bd3"];
+      file_out [label="File Logger\n• ANSI stripping\n• Append mode\n• Timestamp prefix", fillcolor="#c39bd3"];
+      log_formatter [label="Log Formatter\n• logHeader()\n• logStep()\n• logSuccess()\n• logError()", fillcolor="#c39bd3"];
+    }
+
+    log_formatter -> console_out;
+    log_formatter -> file_out [label="if logFile set"];
+  }
+
+  // ===== LAYER 4: PIPELINE ORCHESTRATOR =====
+  subgraph cluster_pipeline {
+    label="PIPELINE ORCHESTRATION LAYER";
+    style=filled;
+    color="#c0392b";
+    fontcolor=white;
+    fillcolor="#e74c3c";
+
+    subgraph cluster_orchestrator {
+      label="pipeline.ts";
+      style=filled;
+      fillcolor="#ec7063";
+
+      pipeline_init [label="Pipeline Initializer\n• Signal handlers\n• Exit code setup\n• Mode detection", fillcolor="#f1948a"];
+      flow_control [label="Flow Controller\n• Sequential execution\n• Skip logic\n• Error handling\n• Early exit detection", fillcolor="#f1948a"];
+      mode_selector [label="Mode Selector\n• Standard (8 steps)\n• Implementation-only\n• Adaptive", fillcolor="#f1948a"];
+    }
+
+    pipeline_init -> mode_selector;
+    mode_selector -> flow_control;
+  }
+
+  // ===== LAYER 5: PIPELINE STEPS =====
+  subgraph cluster_steps {
+    label="PIPELINE STEPS LAYER (Sequential Execution)";
+    style=filled;
+    color="#d35400";
+    fontcolor=white;
+    fillcolor="#e67e22";
+
+    step1 [label="STEP 1\nBranch Management\n• Git state analysis\n• Branch name generation\n• Conflict detection\n• Branch creation", fillcolor="#f39c12"];
+    step2 [label="STEP 2\nImplement\n• Requirement execution\n• Code generation\n• File operations\n• Full autonomy", fillcolor="#f39c12"];
+    step3 [label="STEP 3\nSimplify\n• Refactoring\n• Consistency\n• Clarity improvements\n• Standard enforcement", fillcolor="#f39c12"];
+    step4 [label="STEP 4\nReview Loop\n• 1-3 iterations\n• Depth selection\n• Bug detection\n• Early exit", fillcolor="#f39c12"];
+    step5 [label="STEP 5\nSOLID & Clean Code\n• SOLID principles\n• Architecture patterns\n• Code quality", fillcolor="#f39c12"];
+    step6 [label="STEP 6\nTest\n• Run test suite\n• Add test coverage\n• Verify success", fillcolor="#f39c12"];
+    step7 [label="STEP 7\nCommit\n• Git add\n• Commit message\n• Git push", fillcolor="#f39c12"];
+    step8 [label="STEP 8\nChangelog\n• Parse changes\n• Update CHANGELOG.md\n• Keep a Changelog format", fillcolor="#f39c12"];
+
+    step1 -> step2 [label="Sequential", penwidth=2];
+    step2 -> step3 [penwidth=2];
+    step3 -> step4 [penwidth=2];
+    step4 -> step5 [penwidth=2];
+    step5 -> step6 [penwidth=2];
+    step6 -> step7 [penwidth=2];
+    step7 -> step8 [penwidth=2];
+  }
+
+  // ===== LAYER 6: CLAUDE AI INTEGRATION =====
+  subgraph cluster_claude {
+    label="CLAUDE AI INTEGRATION LAYER";
+    style=filled;
+    color="#27ae60";
+    fontcolor=white;
+    fillcolor="#2ecc71";
+
+    subgraph cluster_claude_impl {
+      label="claude.ts";
+      style=filled;
+      fillcolor="#58d68d";
+
+      process_spawner [label="Process Spawner\ncross-spawn\n• Fork Claude CLI\n• Argument assembly\n• Permission flags\n• Stream pipes", fillcolor="#82e0aa"];
+      stream_parser [label="Stream Parser\n• Line buffering\n• JSON parsing\n• Event routing\n• Error handling", fillcolor="#82e0aa"];
+      tool_visualizer [label="Tool Visualizer\n• Tool call formatting\n• Deduplication\n• Emoji mapping\n• Color coding", fillcolor="#82e0aa"];
+      exit_handler [label="Exit Handler\n• Success detection\n• Error codes\n• Cleanup", fillcolor="#82e0aa"];
+    }
+
+    process_spawner -> stream_parser [label="stdout pipe"];
+    stream_parser -> tool_visualizer [label="tool_use events"];
+    process_spawner -> exit_handler [label="on exit"];
+  }
+
+  // ===== LAYER 7: EXTERNAL CLAUDE CLI =====
+  subgraph cluster_external {
+    label="EXTERNAL PROCESS LAYER";
+    style=filled;
+    color="#2980b9";
+    fontcolor=white;
+    fillcolor="#3498db";
+
+    subgraph cluster_claude_cli {
+      label="Claude CLI (Child Process)";
+      style=filled;
+      fillcolor="#5dade2";
+
+      claude_core [label="Claude AI Engine\nModel: Sonnet 4.5\n• Prompt processing\n• Tool execution\n• Context management", fillcolor="#85c1e9"];
+
+      subgraph cluster_tools {
+        label="Available Tools";
+        style=filled;
+        fillcolor="#7fb3d5";
+
+        tool_read [label="Read\n📖", fillcolor="#aed6f1", shape=ellipse];
+        tool_write [label="Write\n✍️", fillcolor="#aed6f1", shape=ellipse];
+        tool_edit [label="Edit\n✏️", fillcolor="#aed6f1", shape=ellipse];
+        tool_bash [label="Bash\n⚡", fillcolor="#aed6f1", shape=ellipse];
+        tool_grep [label="Grep\n🔍", fillcolor="#aed6f1", shape=ellipse];
+        tool_glob [label="Glob\n📁", fillcolor="#aed6f1", shape=ellipse];
+      }
+
+      claude_core -> tool_read [style=dashed];
+      claude_core -> tool_write [style=dashed];
+      claude_core -> tool_edit [style=dashed];
+      claude_core -> tool_bash [style=dashed];
+      claude_core -> tool_grep [style=dashed];
+      claude_core -> tool_glob [style=dashed];
+    }
+
+    json_stream [label="Stream JSON Output\n{\n  type: 'assistant',\n  message: {\n    content: [tool_use]\n  }\n}", fillcolor="#aed6f1", shape=note];
+
+    claude_core -> json_stream [label="--output-format\nstream-json"];
+  }
+
+  // ===== LAYER 8: UTILITIES =====
+  subgraph cluster_utils {
+    label="UTILITY LAYER";
+    style=filled;
+    color="#7d3c98";
+    fontcolor=white;
+    fillcolor="#8e44ad";
+
+    subgraph cluster_git {
+      label="utils/git.ts";
+      fillcolor="#a569bd";
+
+      git_ops [label="Git Operations\n• getGitState()\n• createBranch()\n• getCurrentBranch()\n• getMainBranch()", fillcolor="#bb8fce"];
+    }
+
+    subgraph cluster_branch_analyzer {
+      label="utils/branchAnalyzer.ts";
+      fillcolor="#a569bd";
+
+      branch_analyzer [label="Branch Analyzer\n• AI requirement analysis\n• Change type detection\n• Branch naming\n• Conflict check", fillcolor="#bb8fce"];
+    }
+
+    subgraph cluster_step_analyzer {
+      label="utils/stepAnalyzer.ts";
+      fillcolor="#a569bd";
+
+      step_analyzer [label="Step Analyzer\n• Adaptive execution\n• Complexity analysis\n• Risk assessment\n• Step recommendations", fillcolor="#bb8fce"];
+    }
+
+    subgraph cluster_update {
+      label="utils/updateNotifier.ts";
+      fillcolor="#a569bd";
+
+      npm_checker [label="NPM Checker\n• Registry query\n• Version compare\n• Update alert", fillcolor="#bb8fce"];
+    }
+  }
+
+  // ===== LAYER 9: FILESYSTEM & GIT =====
+  subgraph cluster_storage {
+    label="STORAGE & VCS LAYER";
+    style=filled;
+    color="#17202a";
+    fontcolor=white;
+    fillcolor="#34495e";
+
+    filesystem [label="Filesystem\n• Source files\n• Config files\n• Log files", fillcolor="#5d6d7e", shape=folder];
+    git_repo [label="Git Repository\n• .git/\n• Branches\n• Commits\n• Remote", fillcolor="#5d6d7e", shape=cylinder];
+    npm_registry [label="NPM Registry\n• Package versions\n• Metadata", fillcolor="#5d6d7e", shape=cylinder];
+  }
+
+  // ===== DATA FLOWS =====
+
+  // User to Entry
+  cli_input -> commander [label="argv", penwidth=2, color="#2c3e50"];
+
+  // Config to Pipeline
+  config_store -> pipeline_init [label="Config object", penwidth=2, color="#16a085"];
+
+  // Pipeline to Logger
+  flow_control -> log_formatter [label="Log calls", style=dashed, color="#8e44ad"];
+
+  // Pipeline to Steps
+  flow_control -> step1 [label="Execute step", penwidth=2, color="#c0392b", lhead=cluster_steps];
+
+  // Steps to Claude
+  step1 -> process_spawner [label="Prompt + Config", penwidth=2, color="#d35400"];
+  step2 -> process_spawner [penwidth=2, color="#d35400"];
+  step3 -> process_spawner [penwidth=2, color="#d35400"];
+  step4 -> process_spawner [label="Continue\nconversation", penwidth=2, color="#d35400"];
+  step5 -> process_spawner [label="Continue\nconversation", penwidth=2, color="#d35400"];
+  step6 -> process_spawner [penwidth=2, color="#d35400"];
+  step7 -> process_spawner [penwidth=2, color="#d35400"];
+  step8 -> process_spawner [penwidth=2, color="#d35400"];
+
+  // Claude spawn
+  process_spawner -> claude_core [label="spawn()\nArgs:\n--allowedTools\n--output-format\n--verbose", penwidth=2, color="#27ae60"];
+
+  // Stream processing
+  json_stream -> stream_parser [label="stdout stream", penwidth=2, color="#2980b9"];
+  tool_visualizer -> log_formatter [label="Tool messages", color="#27ae60"];
+
+  // Claude to Filesystem
+  tool_bash -> filesystem [label="Command\nexecution", style=dashed, color="#3498db"];
+  tool_read -> filesystem [label="File read", style=dashed, color="#3498db"];
+  tool_write -> filesystem [label="File write", style=dashed, color="#3498db"];
+  tool_edit -> filesystem [label="File edit", style=dashed, color="#3498db"];
+
+  // Utilities usage
+  step1 -> branch_analyzer [label="Analyze requirement", color="#7d3c98"];
+  step1 -> git_ops [label="Git operations", color="#7d3c98"];
+  step1 -> step_analyzer [label="If adaptive mode", color="#7d3c98", style=dashed];
+  branch_analyzer -> process_spawner [label="Claude call", style=dotted];
+  step_analyzer -> process_spawner [label="Claude call", style=dotted];
+
+  // Git operations
+  git_ops -> git_repo [label="Git commands", color="#17202a"];
+  tool_bash -> git_repo [label="Git CLI", style=dashed, color="#3498db"];
+
+  // NPM check
+  npm_checker -> npm_registry [label="HTTP request", style=dashed];
+  version_check -> npm_checker;
+
+  // Results flow back
+  exit_handler -> flow_control [label="Success/Failure", penwidth=2, color="#c0392b"];
+  flow_control -> user [label="Exit code\n0=success\n1=failure\n130=interrupt", penwidth=3, color="#2c3e50", style=bold];
+
+  // Logger outputs
+  console_out -> user [label="Terminal output", color="#8e44ad"];
+  file_out -> filesystem [label="Log file", color="#8e44ad"];
+
+  // ===== LEGEND =====
+  subgraph cluster_legend {
+    label="LEGEND";
+    style=filled;
+    color="#95a5a6";
+    fillcolor="#ecf0f1";
+
+    legend [label="Data Flow Types:\n━━ Main execution flow\n╌╌ Async/Background\n··· Utility calls\n\nKey Technologies:\n• Node.js ≥18 (Runtime)\n• TypeScript (ES2022)\n• commander (CLI)\n• chalk (Styling)\n• cross-spawn (Process)\n• Claude CLI (AI)", shape=note, fillcolor="#ffffff"];
+  }
+
+  // ===== ANNOTATIONS =====
+
+  // Permission model
+  permission_note [label="Permission Model:\n• Default: Edit,Read,Bash\n• Dangerous: All tools\n• Configurable via CLI/ENV", shape=note, fillcolor="#fff3cd", color="#856404", fontcolor="#856404"];
+  permission_note -> process_spawner [style=dashed, color="#856404"];
+
+  // Adaptive execution
+  adaptive_note [label="Adaptive Execution:\nAI analyzes requirement\nand recommends:\n• Step skip strategy\n• Review depth\n• Risk level", shape=note, fillcolor="#d1ecf1", color="#0c5460", fontcolor="#0c5460"];
+  adaptive_note -> step_analyzer [style=dashed, color="#0c5460"];
+
+  // Implementation-only mode
+  impl_note [label="Implementation-Only Mode:\nSkips:\n• Branch management\n• Simplify\n• SOLID\n• Test\n• Commit\n• Changelog", shape=note, fillcolor="#f8d7da", color="#721c24", fontcolor="#721c24"];
+  impl_note -> mode_selector [style=dashed, color="#721c24"];
+
+  // Stream processing detail
+  stream_note [label="Stream Processing:\n1. Line buffering\n2. JSON.parse() each line\n3. Event type detection\n4. Tool call extraction\n5. Real-time display", shape=note, fillcolor="#d4edda", color="#155724", fontcolor="#155724"];
+  stream_note -> stream_parser [style=dashed, color="#155724"];
+}
