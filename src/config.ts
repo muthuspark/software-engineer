@@ -1,5 +1,17 @@
 const DEFAULT_REVIEW_ITERATIONS = 2;
 
+export const VALID_STAGES = [
+  'implement',
+  'simplify',
+  'review',
+  'clean-code',
+  'test',
+  'commit',
+  'changelog',
+] as const;
+
+export type StageName = typeof VALID_STAGES[number];
+
 export interface Config {
   reviewIterations: number;
   dryRun: boolean;
@@ -12,6 +24,7 @@ export interface Config {
   requirement: string;
   adaptiveExecution: boolean;
   implementationOnly: boolean;
+  runStages?: StageName[];
 }
 
 function parseBoolEnv(value: string | undefined, defaultValue: boolean): boolean {
@@ -60,5 +73,6 @@ export function mergeConfig(envConfig: Partial<Config>, cliConfig: Partial<Confi
     requirement: cliConfig.requirement ?? '',
     adaptiveExecution: cliConfig.adaptiveExecution ?? envConfig.adaptiveExecution ?? false,
     implementationOnly: cliConfig.implementationOnly ?? envConfig.implementationOnly ?? false,
+    runStages: cliConfig.runStages,
   };
 }

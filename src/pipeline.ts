@@ -10,7 +10,7 @@ import {
   stepCommit,
   stepChangelog,
 } from './steps/index.js';
-import type { Config } from './config.js';
+import type { Config, StageName } from './config.js';
 import type { AdaptiveAnalysis, StepRecommendation } from './utils/stepAnalyzer.js';
 
 const EXIT_CODE_FAILURE = 1;
@@ -49,6 +49,72 @@ function displayCompletionMessage(implementationOnly: boolean): void {
   }
 }
 
+const STAGE_LABELS: Record<StageName, string> = {
+  'implement': 'Implement',
+  'simplify': 'Simplify',
+  'review': 'Code Review',
+  'clean-code': 'SOLID & Clean Code',
+  'test': 'Testing',
+  'commit': 'Commit',
+  'changelog': 'Changelog',
+};
+
+async function runSelectedStages(config: Config): Promise<void> {
+  const stages = config.runStages!;
+  const stageLabels = stages.map((s) => STAGE_LABELS[s]).join(' → ');
+
+  console.log(chalk.cyan(`▶ Running selected stage(s): ${stageLabels}\n`));
+
+  for (const stage of stages) {
+    switch (stage) {
+      case 'implement': {
+        const success = await stepImplement(config);
+        if (!success) exitWithError('Implementation step failed. Exiting.');
+        break;
+      }
+      case 'simplify': {
+        const success = await stepSimplify(config);
+        if (!success) exitWithError('Simplification step failed. Exiting.');
+        break;
+      }
+      case 'review': {
+        const reviewIterations = config.reviewIterations;
+        for (let i = 1; i <= reviewIterations; i++) {
+          const reviewResult = await stepReview(i, config);
+          if (!reviewResult.success) exitWithError('Review step failed. Exiting.');
+          if (reviewResult.noIssuesFound) {
+            console.log(chalk.green('\n✓ Code review passed - no issues found, skipping remaining reviews'));
+            break;
+          }
+        }
+        break;
+      }
+      case 'clean-code': {
+        const success = await stepSolidCleanCode(config);
+        if (!success) exitWithError('SOLID review step failed. Exiting.');
+        break;
+      }
+      case 'test': {
+        const success = await stepTest(config);
+        if (!success) exitWithError('Test step failed. Exiting.');
+        break;
+      }
+      case 'commit': {
+        const success = await stepCommit(config);
+        if (!success) exitWithError('Commit step failed. Exiting.');
+        break;
+      }
+      case 'changelog': {
+        const success = await stepChangelog(config);
+        if (!success) exitWithError('Changelog step failed. Exiting.');
+        break;
+      }
+    }
+  }
+
+  console.log(chalk.green('\n✓ Selected stage(s) completed successfully\n'));
+}
+
 export async function runPipeline(config: Config): Promise<void> {
   // Setup logging
   if (config.logFile) {
@@ -72,6 +138,11 @@ export async function runPipeline(config: Config): Promise<void> {
 
   // Display header
   logHeader(config);
+
+  // Run specific stages if requested
+  if (config.runStages && config.runStages.length > 0) {
+    return runSelectedStages(config);
+  }
 
   if (config.implementationOnly) {
     displayImplementationOnlyBanner();

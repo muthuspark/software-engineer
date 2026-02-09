@@ -6,7 +6,7 @@ import { readFileSync } from 'fs';
 import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
 import { createInterface } from 'readline';
-import { loadConfigFromEnv, mergeConfig } from './config.js';
+import { loadConfigFromEnv, mergeConfig, VALID_STAGES } from './config.js';
 import { runPipeline } from './pipeline.js';
 import { checkForUpdates } from './utils/updateNotifier.js';
 
@@ -56,6 +56,13 @@ program
   .option('--skip-push', 'Commit but do not push')
   .option('--skip-branch-management', 'Skip smart branch management')
   .option('--implementation-only', 'Run only: Implement → Review → SOLID (skips branch, tests, commit)')
+  .option('--implement', 'Run only the implementation step')
+  .option('--simplify', 'Run only the code simplification step')
+  .option('--review', 'Run only the code review step')
+  .option('--clean-code', 'Run only the SOLID & clean code step')
+  .option('--test', 'Run only the testing step')
+  .option('--commit', 'Run only the commit step')
+  .option('--changelog', 'Run only the changelog step')
   .option('--log <file>', 'Log output to file')
   .option('--dangerously-skip-permissions', 'Pass flag to claude to skip permission prompts')
   .option('--allowedTools <tools>', 'Comma-separated list of allowed tools (default: "Edit,Read,Bash")')
@@ -63,9 +70,16 @@ program
     // Check for updates (non-blocking, fails silently)
     await checkForUpdates(pkg.name, pkg.version).catch(() => {});
 
-    // Prompt for requirement if not provided
+    // Collect stage flags
+    const selectedStages = VALID_STAGES.filter((stage) => {
+      const camelCase = stage.replace(/-([a-z])/g, (_, c: string) => c.toUpperCase());
+      return !!options[camelCase];
+    });
+
+    // Prompt for requirement if not provided (skip for stages that don't need one)
+    const stageNeedsRequirement = selectedStages.length === 0 || selectedStages.includes('implement');
     let finalRequirement = requirement;
-    if (!finalRequirement) {
+    if (!finalRequirement && stageNeedsRequirement) {
       finalRequirement = await promptForRequirement();
     }
 
@@ -83,12 +97,17 @@ program
       allowedTools: options.allowedTools ?? undefined,
       adaptiveExecution: options.adaptive ?? undefined,
       implementationOnly: options.implementationOnly ?? undefined,
+      runStages: selectedStages.length > 0 ? selectedStages : undefined,
     };
 
     const config = mergeConfig(envConfig, cliConfig);
 
     // Handle implementation-only mode
     if (config.implementationOnly) {
+      if (config.runStages) {
+        console.error(chalk.red('Error:') + ' Cannot use --implementation-only with individual stage flags');
+        process.exit(1);
+      }
       // Implementation-only mode automatically skips branch management and tests
       config.skipBranchManagement = true;
       config.skipTests = true;
@@ -101,7 +120,9 @@ program
       config.adaptiveExecution = false;
     }
 
-    if (!config.requirement) {
+    // Require a requirement for full pipeline or implement stage; optional for other stages
+    const needsRequirement = !config.runStages || config.runStages.includes('implement');
+    if (!config.requirement && needsRequirement) {
       console.error(chalk.red('Error:') + ' No requirement provided');
       program.help();
       return; // Ensure we don't continue if help() doesn't exit

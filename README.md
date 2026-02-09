@@ -109,6 +109,39 @@ sf --dangerously-skip-permissions "implement feature"
 
 **Note**: When `--dangerously-skip-permissions` is used, the `allowedTools` setting is ignored.
 
+## Run Individual Stages
+
+You can run specific pipeline stages directly without executing the full pipeline. This is useful for running a quick review or cleanup on code you've already written.
+
+```bash
+# Run only the code simplification step
+sf --simplify
+
+# Run only the code review step
+sf --review
+
+# Run only the SOLID & clean code check
+sf --clean-code
+
+# Run only the testing step
+sf --test
+
+# Run only the commit step
+sf --commit
+
+# Run only the implementation step (requires a requirement)
+sf --implement "add error handling to the API"
+
+# Combine multiple stages (executed in pipeline order)
+sf --simplify --review --clean-code
+
+# Works with other options
+sf --review -r 3         # 3 review iterations
+sf --review --dry-run    # Preview without executing
+```
+
+**Note**: All stages except `--implement` work without a requirement — they operate on the current state of your code. You can combine multiple stage flags and they will run in pipeline order.
+
 ## Options
 
 | Option | Description |
@@ -119,6 +152,14 @@ sf --dangerously-skip-permissions "implement feature"
 | `--skip-tests` | Skip the testing step |
 | `--skip-push` | Commit but don't push to remote |
 | `--skip-branch-management` | Skip smart branch management |
+| `--implementation-only` | Run only: Implement → Review → SOLID |
+| `--implement` | Run only the implementation step |
+| `--simplify` | Run only the code simplification step |
+| `--review` | Run only the code review step |
+| `--clean-code` | Run only the SOLID & clean code step |
+| `--test` | Run only the testing step |
+| `--commit` | Run only the commit step |
+| `--changelog` | Run only the changelog step |
 | `--log <file>` | Log output to file |
 | `--allowedTools <tools>` | Comma-separated list of allowed tools (default: "Edit,Read,Bash") |
 | `--dangerously-skip-permissions` | Skip Claude permission prompts (overrides allowedTools) |
