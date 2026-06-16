@@ -52,7 +52,7 @@ export function logStep(stepNum: string, title: string): void {
   }
 }
 
-export function logHeader(config: { reviewIterations: number; dryRun: boolean; dangerouslySkipPermissions: boolean; allowedTools?: string; implementationOnly: boolean }): void {
+export function logHeader(config: { agent: string; reviewIterations: number; dryRun: boolean; dangerouslySkipPermissions: boolean; allowedTools?: string; implementationOnly: boolean }): void {
   const line = '═'.repeat(BOX_WIDTH);
   console.log();
   console.log(chalk.green(`╔${line}╗`));
@@ -65,7 +65,7 @@ export function logHeader(config: { reviewIterations: number; dryRun: boolean; d
   const authorLine = ' '.repeat(authorPadding) + author + ' '.repeat(BOX_WIDTH - authorPadding - author.length);
   console.log(chalk.green('║') + chalk.dim(authorLine) + chalk.green('║'));
   console.log(chalk.green(`╠${line}╣`));
-  let configLine = ` Reviews: ${config.reviewIterations} | Dry-run: ${config.dryRun}`;
+  let configLine = ` Agent: ${config.agent} | Reviews: ${config.reviewIterations} | Dry-run: ${config.dryRun}`;
   if (config.implementationOnly) {
     configLine += ' | Mode: implementation-only';
   }
@@ -73,7 +73,7 @@ export function logHeader(config: { reviewIterations: number; dryRun: boolean; d
   if (config.dangerouslySkipPermissions) {
     const permLine = ' ' + chalk.yellow('⚠ Skip permissions: enabled');
     console.log(chalk.green('║') + permLine + ' '.repeat(BOX_WIDTH - stripAnsi(permLine).length) + chalk.green('║'));
-  } else if (config.allowedTools) {
+  } else if (config.agent === 'claude' && config.allowedTools) {
     const toolsLine = ' ' + chalk.cyan(`🔓 Allowed tools: ${config.allowedTools}`);
     console.log(chalk.green('║') + toolsLine + ' '.repeat(BOX_WIDTH - stripAnsi(toolsLine).length) + chalk.green('║'));
   }

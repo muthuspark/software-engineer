@@ -1,4 +1,5 @@
 const DEFAULT_REVIEW_ITERATIONS = 2;
+export const AGENTS = ['codex', 'claude'] as const;
 
 export const VALID_STAGES = [
   'implement',
@@ -11,8 +12,10 @@ export const VALID_STAGES = [
 ] as const;
 
 export type StageName = typeof VALID_STAGES[number];
+export type Agent = typeof AGENTS[number];
 
 export interface Config {
+  agent: Agent;
   reviewIterations: number;
   dryRun: boolean;
   logFile?: string;
@@ -25,6 +28,12 @@ export interface Config {
   adaptiveExecution: boolean;
   implementationOnly: boolean;
   runStages?: StageName[];
+}
+
+function parseAgent(value: string | undefined, source: string): Agent | undefined {
+  if (value === undefined) return undefined;
+  if ((AGENTS as readonly string[]).includes(value)) return value as Agent;
+  throw new Error(`Invalid ${source}: "${value}". Expected "codex" or "claude".`);
 }
 
 function parseBoolEnv(value: string | undefined, defaultValue: boolean): boolean {
@@ -40,6 +49,7 @@ function parseIntEnv(value: string | undefined, defaultValue: number): number {
 
 export function loadConfigFromEnv(): Partial<Config> {
   return {
+    agent: parseAgent(process.env.SF_AGENT, 'SF_AGENT'),
     reviewIterations: parseIntEnv(process.env.SF_REVIEW_ITERATIONS, DEFAULT_REVIEW_ITERATIONS),
     dryRun: parseBoolEnv(process.env.SF_DRY_RUN, false),
     logFile: process.env.SF_LOG_FILE || undefined,
@@ -56,12 +66,13 @@ export function loadConfigFromEnv(): Partial<Config> {
 export function mergeConfig(envConfig: Partial<Config>, cliConfig: Partial<Config>): Config {
   const dangerouslySkipPermissions = cliConfig.dangerouslySkipPermissions ?? envConfig.dangerouslySkipPermissions ?? false;
 
-  // Set default allowedTools to "Edit,Read,Bash" unless dangerouslySkipPermissions is true
+  // Claude-only default; Codex ignores allowedTools.
   const allowedTools = dangerouslySkipPermissions
     ? undefined
     : (cliConfig.allowedTools ?? envConfig.allowedTools ?? 'Edit,Read,Bash');
 
   return {
+    agent: cliConfig.agent ?? envConfig.agent ?? 'codex',
     reviewIterations: cliConfig.reviewIterations ?? envConfig.reviewIterations ?? DEFAULT_REVIEW_ITERATIONS,
     dryRun: cliConfig.dryRun ?? envConfig.dryRun ?? false,
     logFile: cliConfig.logFile ?? envConfig.logFile,

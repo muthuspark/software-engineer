@@ -7,7 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.1.24] - 2026-06-16
+
 ### Added
+- Codex CLI support as the default agent.
+- `--agent <codex|claude>` CLI flag and `SF_AGENT` environment variable.
 - Real-time progress visualization using Claude's stream-json output format
 - Colorized, emoji-enhanced output showing file operations and tool usage
 - Live progress indicators for Read, Write, Edit, Bash, Grep, and Glob operations
@@ -19,6 +23,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Warning message when implementation-only mode overrides adaptive execution flag
 
 ### Changed
+- Claude remains available via `--agent claude`.
+- Codex runs with workspace-write sandboxing and no approval prompts by default.
+- `--dangerously-skip-permissions` now maps to the selected agent's bypass mode.
+- Documentation now explains Codex defaults, Claude fallback, and Claude-only `allowedTools` behavior.
 - Claude CLI now always runs with `-p --output-format=stream-json --verbose` flags
 - Merged understand stage into implement stage for more efficient execution
 - Pipeline now has 8 steps: Branch → Implement → Simplify → Review → SOLID → Test → Commit → Changelog

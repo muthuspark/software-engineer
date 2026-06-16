@@ -6,7 +6,7 @@ import { readFileSync } from 'fs';
 import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
 import { createInterface } from 'readline';
-import { loadConfigFromEnv, mergeConfig, VALID_STAGES } from './config.js';
+import { AGENTS, loadConfigFromEnv, mergeConfig, VALID_STAGES } from './config.js';
 import { runPipeline } from './pipeline.js';
 import { checkForUpdates } from './utils/updateNotifier.js';
 
@@ -46,7 +46,7 @@ const program = new Command();
 
 program
   .name('sf')
-  .description('Software Factory Pipeline - Automate development workflow with Claude AI')
+  .description('Software Factory Pipeline - Automate development workflow with Codex or Claude AI')
   .version(pkg.version)
   .argument('[requirement]', 'The requirement or task to implement')
   .option('-d, --dry-run', 'Print commands without executing')
@@ -64,8 +64,9 @@ program
   .option('--commit', 'Run only the commit step')
   .option('--changelog', 'Run only the changelog step')
   .option('--log <file>', 'Log output to file')
-  .option('--dangerously-skip-permissions', 'Pass flag to claude to skip permission prompts')
-  .option('--allowedTools <tools>', 'Comma-separated list of allowed tools (default: "Edit,Read,Bash")')
+  .option('--agent <agent>', 'Agent to run: codex or claude (default: codex)')
+  .option('--dangerously-skip-permissions', 'Bypass agent permission prompts')
+  .option('--allowedTools <tools>', 'Claude-only comma-separated allowed tools (default: "Edit,Read,Bash")')
   .action(async (requirement: string | undefined, options) => {
     // Check for updates (non-blocking, fails silently)
     await checkForUpdates(pkg.name, pkg.version).catch(() => {});
@@ -93,6 +94,7 @@ program
       skipPush: options.skipPush ?? undefined,
       skipBranchManagement: options.skipBranchManagement ?? undefined,
       logFile: options.log ?? undefined,
+      agent: options.agent ?? undefined,
       dangerouslySkipPermissions: options.dangerouslySkipPermissions ?? undefined,
       allowedTools: options.allowedTools ?? undefined,
       adaptiveExecution: options.adaptive ?? undefined,
@@ -100,7 +102,16 @@ program
       runStages: selectedStages.length > 0 ? selectedStages : undefined,
     };
 
-    const config = mergeConfig(envConfig, cliConfig);
+    let config;
+    try {
+      if (options.agent && !AGENTS.includes(options.agent)) {
+        throw new Error(`Invalid --agent: "${options.agent}". Expected "codex" or "claude".`);
+      }
+      config = mergeConfig(envConfig, cliConfig);
+    } catch (error) {
+      console.error(chalk.red('Error:') + ' ' + (error instanceof Error ? error.message : String(error)));
+      process.exit(1);
+    }
 
     // Handle implementation-only mode
     if (config.implementationOnly) {

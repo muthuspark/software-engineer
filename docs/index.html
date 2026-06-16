@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Software Engineer - AI-Powered Dev Workflow CLI</title>
-  <meta name="description" content="CLI that automates the full dev workflow with Claude AI - implement, review, test, and commit code with a single command">
+  <meta name="description" content="CLI that automates the full dev workflow with Codex by default and Claude optionally">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
@@ -812,7 +812,7 @@
     <div class="container">
       <div class="badge">
         <span class="badge-dot"></span>
-        Powered by Claude AI
+        Powered by Codex by default
       </div>
       <h1>Ship Production Code<br><span class="gradient">10x Faster</span></h1>
       <p>The CLI that automates your entire dev workflow. Implement, review, test, and commit code with a single command.</p>
@@ -874,7 +874,7 @@
           <span class="step-number">03</span>
           <div class="step-icon">&#128187;</div>
           <h3>Implement</h3>
-          <p>Claude implements your requirement following project conventions and patterns.</p>
+          <p>The selected agent implements your requirement following project conventions and patterns.</p>
         </div>
         <div class="step">
           <span class="step-number">04</span>
@@ -970,6 +970,9 @@ sf --reviews 3 "refactor database layer"
 <span class="comment"># Dry run to preview commands</span>
 sf --dry-run "add dark mode toggle"
 
+<span class="comment"># Use Claude instead of Codex</span>
+sf --agent claude "add dark mode toggle"
+
 <span class="comment"># Skip tests and push</span>
 sf --skip-tests --skip-push "update README"
 
@@ -999,6 +1002,10 @@ sf --log pipeline.log "implement caching"</code></pre>
                 <td>Number of review iterations (default: 2)</td>
               </tr>
               <tr>
+                <td>--agent &lt;agent&gt;</td>
+                <td>Agent to run: codex or claude (default: codex)</td>
+              </tr>
+              <tr>
                 <td>--skip-tests</td>
                 <td>Skip the testing step</td>
               </tr>
@@ -1013,6 +1020,14 @@ sf --log pipeline.log "implement caching"</code></pre>
               <tr>
                 <td>--log &lt;file&gt;</td>
                 <td>Log output to file</td>
+              </tr>
+              <tr>
+                <td>--allowedTools &lt;tools&gt;</td>
+                <td>Claude-only allowed tools</td>
+              </tr>
+              <tr>
+                <td>--dangerously-skip-permissions</td>
+                <td>Bypass agent permission prompts/sandboxing</td>
               </tr>
             </tbody>
           </table>
@@ -1029,7 +1044,7 @@ sf --log pipeline.log "implement caching"</code></pre>
       </div>
       <div class="install-card">
         <p class="install-prereq">
-          Requires Node.js 18+ and <a href="https://github.com/anthropics/claude-code" target="_blank">Claude CLI</a>
+          Requires Node.js 18+ and <a href="https://developers.openai.com/codex/cli/" target="_blank">Codex CLI</a>; <a href="https://github.com/anthropics/claude-code" target="_blank">Claude CLI</a> is optional for <code>--agent claude</code>
         </p>
         <div class="install-command">
           <span class="prefix">$</span>

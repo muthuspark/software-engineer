@@ -1,8 +1,6 @@
 # software-engineer
 
-A CLI tool that automates the software development workflow using Claude AI. It runs an 8-step pipeline to implement features, simplify code, review, ensure quality, test, commit, and update changelogs with real-time progress visualization.
-
-By default, Claude is automatically granted permission to **Edit, Read, and Bash** tools, allowing seamless autonomous operation without constant permission prompts.
+A CLI tool that automates the software development workflow using Codex by default, with Claude available via `--agent claude`. It runs an 8-step pipeline to implement features, simplify code, review, ensure quality, test, commit, and update changelogs.
 
 
 ## The Brain
@@ -18,7 +16,8 @@ npm install -g software-engineer
 ## Prerequisites
 
 - Node.js >= 18.0.0
-- [Claude CLI](https://github.com/anthropics/claude-code) installed and configured
+- [Codex CLI](https://developers.openai.com/codex/cli/) installed and configured
+- Optional: [Claude CLI](https://github.com/anthropics/claude-code) installed and configured for `--agent claude`
 
 ## Recommended Workflow
 
@@ -29,7 +28,7 @@ For best results, follow this workflow:
    - Iterate and refine the plan until it's complete
    - Claude will generate a plan file (usually a `.md` file)
 
-2. **Execute with software-engineer**: Once your plan is finalized, close Claude and run:
+2. **Execute with software-engineer**: Once your plan is finalized, run:
    ```bash
    sf "implement the plan mentioned in /path/to/plan.md"
    ```
@@ -39,7 +38,7 @@ For best results, follow this workflow:
 This approach gives you the best of both worlds:
 - **Interactive planning** with Claude to ensure the approach is correct
 - **Automated execution** with comprehensive quality checks
-- **Seamless operation** - Claude automatically has permission to edit files, read code, and run commands without prompts
+- **Seamless operation** - Codex runs non-interactively with workspace-write sandboxing by default
 
 ## Usage
 
@@ -50,7 +49,7 @@ sf "<requirement>"
 ### Examples
 
 ```bash
-# Recommended: Use with a plan file from Claude
+# Recommended: Use with a plan file
 sf "implement the plan mentioned in ./docs/feature-plan.md"
 
 # Basic usage with direct requirement
@@ -62,6 +61,9 @@ sf --reviews 3 "refactor database layer"
 # Dry run to preview commands
 sf --dry-run "add dark mode toggle"
 
+# Use Claude instead of Codex
+sf --agent claude "add dark mode toggle"
+
 # Skip tests and push
 sf --skip-tests --skip-push "update README"
 
@@ -69,35 +71,37 @@ sf --skip-tests --skip-push "update README"
 sf --log pipeline.log "implement caching layer"
 ```
 
-## Permission Management
+## Agent And Permission Management
 
-By default, `software-engineer` automatically grants Claude permission to use **Edit, Read, and Bash** tools without prompting. This streamlines the workflow while maintaining control over file operations.
+By default, `software-engineer` runs Codex:
 
-### Default Behavior
+```bash
+codex exec --sandbox workspace-write --ask-for-approval never "<prompt>"
+```
 
-When you run the tool, it automatically passes `--allowedTools "Edit,Read,Bash"` to Claude:
-- **Edit**: Modify existing files
-- **Read**: Read file contents
-- **Bash**: Execute shell commands (git, npm, build tools, etc.)
+Claude remains available:
 
-This means Claude can work autonomously on your codebase without constant permission prompts, making the pipeline smooth and efficient.
+```bash
+sf --agent claude "implement feature"
+SF_AGENT=claude sf "implement feature"
+```
 
-### Customizing Allowed Tools
+### Claude Allowed Tools
 
-You can customize which tools are auto-approved:
+`--allowedTools` and `SF_ALLOWED_TOOLS` apply only to Claude. Codex uses sandbox and approval flags instead.
 
 ```bash
 # Allow additional tools
-sf --allowedTools "Edit,Read,Write,Bash,Grep" "add new feature"
+sf --agent claude --allowedTools "Edit,Read,Write,Bash,Grep" "add new feature"
 
 # Via environment variable
-SF_ALLOWED_TOOLS="Edit,Read,Write,Bash" sf "implement caching"
+SF_AGENT=claude SF_ALLOWED_TOOLS="Edit,Read,Write,Bash" sf "implement caching"
 
 # Restrict to read-only operations
-sf --allowedTools "Read,Grep,Glob" "analyze the codebase"
+sf --agent claude --allowedTools "Read,Grep,Glob" "analyze the codebase"
 ```
 
-### Skipping All Permissions (Use with Caution)
+### Skipping Sandboxes And Permissions (Use with Caution)
 
 For fully autonomous operation in trusted environments (like CI/CD), you can skip all permission checks:
 
@@ -105,9 +109,9 @@ For fully autonomous operation in trusted environments (like CI/CD), you can ski
 sf --dangerously-skip-permissions "implement feature"
 ```
 
-**Warning**: This bypasses ALL permission prompts. Only use in isolated, secure environments.
+For Codex this maps to `codex exec --dangerously-bypass-approvals-and-sandbox`. For Claude this maps to `claude --dangerously-skip-permissions`.
 
-**Note**: When `--dangerously-skip-permissions` is used, the `allowedTools` setting is ignored.
+**Warning**: This bypasses permission prompts and/or sandboxing. Only use in isolated, secure environments.
 
 ## Run Individual Stages
 
@@ -161,8 +165,9 @@ sf --review --dry-run    # Preview without executing
 | `--commit` | Run only the commit step |
 | `--changelog` | Run only the changelog step |
 | `--log <file>` | Log output to file |
-| `--allowedTools <tools>` | Comma-separated list of allowed tools (default: "Edit,Read,Bash") |
-| `--dangerously-skip-permissions` | Skip Claude permission prompts (overrides allowedTools) |
+| `--agent <agent>` | Agent to run: `codex` or `claude` (default: `codex`) |
+| `--allowedTools <tools>` | Claude-only comma-separated list of allowed tools (default: "Edit,Read,Bash") |
+| `--dangerously-skip-permissions` | Bypass agent permission prompts/sandboxing |
 | `-h, --help` | Display help |
 | `-V, --version` | Display version |
 
@@ -179,8 +184,9 @@ All options can be set via environment variables:
 | `SF_SKIP_TESTS` | `true`/`false` to skip tests |
 | `SF_SKIP_PUSH` | `true`/`false` to skip push |
 | `SF_SKIP_BRANCH_MANAGEMENT` | `true`/`false` to skip branch management |
-| `SF_ALLOWED_TOOLS` | Comma-separated list of allowed tools (default: "Edit,Read,Bash") |
-| `SF_DANGEROUSLY_SKIP_PERMISSIONS` | `true`/`false` to skip Claude permissions (overrides allowedTools) |
+| `SF_AGENT` | `codex` or `claude` |
+| `SF_ALLOWED_TOOLS` | Claude-only comma-separated list of allowed tools (default: "Edit,Read,Bash") |
+| `SF_DANGEROUSLY_SKIP_PERMISSIONS` | `true`/`false` to bypass agent permission prompts/sandboxing |
 
 Example:
 ```bash
@@ -189,8 +195,8 @@ SF_REVIEW_ITERATIONS=3 sf "add feature X"
 
 ## Features
 
-- **Automatic Permission Management**: Claude is pre-authorized to Edit, Read, and execute Bash commands by default - no constant permission prompts
-- **Real-time Progress Visualization**: See exactly what Claude is doing with colorized, emoji-enhanced output
+- **Automatic Agent Management**: Codex runs by default; Claude remains available with `--agent claude`
+- **Real-time Progress Visualization**: See agent output and Claude tool calls with colorized output
   - 📖 File reads in cyan
   - ✍️ File writes in green
   - ✏️ File edits in yellow
@@ -209,7 +215,7 @@ Analyzes your requirement and automatically creates appropriate feature branches
 - Warns about potential conflicts
 
 ### 2. Implement
-Claude understands your codebase and implements the requirement:
+The selected agent understands your codebase and implements the requirement:
 - Analyzes project structure and patterns
 - Follows project conventions
 - Handles edge cases appropriately

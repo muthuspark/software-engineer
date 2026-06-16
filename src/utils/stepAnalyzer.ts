@@ -1,5 +1,6 @@
 import { spawn } from 'child_process';
 import type { Config } from '../config.js';
+import { getAgentCommand } from '../claude.js';
 import type { ChangeType } from './branchAnalyzer.js';
 
 const MIN_REVIEW_ITERATIONS = 1;
@@ -136,13 +137,7 @@ function parseAdaptiveResponse(output: string): AdaptiveAnalysis {
 export async function analyzeSteps(requirement: string, config: Config): Promise<AdaptiveAnalysis> {
   const prompt = ADAPTIVE_ANALYSIS_PROMPT.replace('{REQUIREMENT}', requirement);
 
-  const args: string[] = ['--print'];
-
-  if (config.dangerouslySkipPermissions) {
-    args.push('--dangerously-skip-permissions');
-  }
-
-  args.push(prompt);
+  const { command, args } = getAgentCommand(config, prompt);
 
   if (config.dryRun) {
     return {
@@ -157,7 +152,7 @@ export async function analyzeSteps(requirement: string, config: Config): Promise
   return new Promise((resolve) => {
     let output = '';
 
-    const child = spawn('claude', args, {
+    const child = spawn(command, args, {
       cwd: process.cwd(),
       env: process.env,
       stdio: ['inherit', 'pipe', 'pipe'],

@@ -1,5 +1,6 @@
 import { spawn } from 'child_process';
 import type { Config } from '../config.js';
+import { getAgentCommand } from '../claude.js';
 
 export type ChangeType = 'feature' | 'fix' | 'refactor' | 'docs' | 'chore' | 'trivial';
 
@@ -88,13 +89,7 @@ function parseAnalysisResponse(output: string): BranchAnalysis | null {
 export async function analyzeRequirement(requirement: string, config: Config): Promise<BranchAnalysis> {
   const prompt = ANALYSIS_PROMPT.replace('{REQUIREMENT}', requirement);
 
-  const args: string[] = ['--print'];
-
-  if (config.dangerouslySkipPermissions) {
-    args.push('--dangerously-skip-permissions');
-  }
-
-  args.push(prompt);
+  const { command, args } = getAgentCommand(config, prompt);
 
   if (config.dryRun) {
     return {
@@ -107,7 +102,7 @@ export async function analyzeRequirement(requirement: string, config: Config): P
   return new Promise((resolve) => {
     let output = '';
 
-    const child = spawn('claude', args, {
+    const child = spawn(command, args, {
       cwd: process.cwd(),
       env: process.env,
       stdio: ['inherit', 'pipe', 'pipe'],
